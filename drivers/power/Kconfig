@@ -507,7 +507,11 @@ config AXP20X_POWER
 	help
 	  This driver provides support for the power supply features of
 	  AXP20x PMIC.
-
+config CHARGER_BQ25600_SLAVE
+	tristate "TI BQ25600 battery charger driver"
+	depends on I2C
+	help
+	  Say Y to enable support for TI bq25600 as slave charger
 source "drivers/power/reset/Kconfig"
 
 endif # POWER_SUPPLY
