@@ -349,23 +349,32 @@ int bq2560x_set_input_volt_limit(struct bq2560x *bq, int volt)
 }
 EXPORT_SYMBOL_GPL(bq2560x_set_input_volt_limit);
 
-#if 1
 int bq2560x_set_input_volt_ovp(struct bq2560x *bq, int ovp)
 {
 	u8 val;
 
-	val = ovp;
+	if (ovp == 5500)
+		val = REG06_OVP_5P5V;
+	else if (ovp == 6500)
+		val = REG06_OVP_6P5V;
+	else if (ovp == 10500)
+		val = REG06_OVP_10P5V;
+	else if (ovp == 14000)
+		val = REG06_OVP_14V;
+	else
+		val = REG06_OVP_6P5V;
+
 	val <<= REG06_OVP_SHIFT;
 
 	return bq2560x_update_bits(bq, BQ2560X_REG_06, REG06_OVP_MASK, val);
 }
 EXPORT_SYMBOL_GPL(bq2560x_set_input_volt_ovp);
-#endif
 
 int bq2560x_set_input_current_limit(struct bq2560x *bq, int curr)
 {
 	u8 val;
 
+	curr += REG00_IINLIM_LSB / 2;
 	val = (curr - REG00_IINLIM_BASE) / REG00_IINLIM_LSB;
 	val <<= REG00_IINLIM_SHIFT;
 
@@ -373,6 +382,7 @@ int bq2560x_set_input_current_limit(struct bq2560x *bq, int curr)
 }
 EXPORT_SYMBOL_GPL(bq2560x_set_input_current_limit);
 
+#if 0
 static int bq2560x_get_input_volt_ovp(struct bq2560x *bq, int *ovp)
 {
 	u8 val;
@@ -387,6 +397,7 @@ static int bq2560x_get_input_volt_ovp(struct bq2560x *bq, int *ovp)
 
 	return ret;
 }
+#endif
 
 static int bq2560x_get_input_current_limit(struct bq2560x *bq, int *curr)
 {
@@ -497,31 +508,6 @@ static void create_debugfs_entries(struct bq2560x *bq)
 	}
 }
 
-
-#if 0
-static int bq2560x_charging(struct bq2560x *bq, int enable)
-{
-	int ret;
-	u8 val;
-	
-	if (enable)
-		ret = bq2560x_enable_charger(bq);
-	else
-		ret = bq2560x_disable_charger(bq);
-
-	
-	pr_err("%s charger %s\n", enable ? "enable" : "disable",
-				  !ret ? "successfully" : "failed");
-	
-	ret = bq2560x_read_byte(bq, &val, BQ2560X_REG_01);
-	if (!ret) 
-		bq->charge_enabled = !!(val & REG01_CHG_CONFIG_MASK);
-
-	return ret;
-}
-#endif
-
-
 static int bq2560x_usb_suspend(struct bq2560x *bq, int reason, bool suspend)
 {
 	int rc = 0;
@@ -561,7 +547,6 @@ static int bq2560x_set_charge_profile(struct bq2560x *bq);
 static int bq2560x_init_device(struct bq2560x *bq)
 {
 	int ret;
-	int ovp_setting;
 
 	ret = bq2560x_disable_watchdog_timer(bq);
 	if (ret < 0) {
@@ -577,19 +562,11 @@ static int bq2560x_init_device(struct bq2560x *bq)
 		pr_err("Failed to disable termination:%d\n", ret);
 		return ret;
 	}
-#if 0
-	ret = bq2560x_charging(bq, bq->charge_enabled);
-#endif	
 
-#if 1
-	bq2560x_get_input_volt_ovp(bq, &ovp_setting);
 
-	if(ovp_setting <= 1)
-	{
-		bq2560x_set_input_volt_ovp(bq, 2);
-		bq2560x_get_input_volt_ovp(bq, &ovp_setting);
-	}
-#endif
+	ret = bq2560x_set_input_volt_ovp(bq, 10500);
+	if (ret < 0) 
+		pr_err("Failed to set ovp threshold to %d\n", 10500);
 
 	return ret;
 }
@@ -789,7 +766,7 @@ static int bq2560x_parallel_set_property(struct power_supply *psy,
 	
 	switch (prop) {
 	case POWER_SUPPLY_PROP_CHARGING_ENABLED:
-		pr_err("POWER_SUPPLY_PROP_CHARGING_ENABLED:%d\n",
+		pr_debug("POWER_SUPPLY_PROP_CHARGING_ENABLED:%d\n",
 						val->intval);
 		
 		if (!bq->parallel_charger_suspended)
@@ -797,14 +774,14 @@ static int bq2560x_parallel_set_property(struct power_supply *psy,
 		break;
 
 	case POWER_SUPPLY_PROP_INPUT_SUSPEND:
-		pr_err("POWER_SUPPLY_PROP_INPUT_SUSPEND:%d\n",
+		pr_debug("POWER_SUPPLY_PROP_INPUT_SUSPEND:%d\n",
 						val->intval);
 		
 		rc = bq2560x_parallel_set_chg_suspend(bq, val->intval);
 		break;
 
 	case POWER_SUPPLY_PROP_CONSTANT_CHARGE_CURRENT_MAX:
-		pr_err("POWER_SUPPLY_PROP_CONSTANT_CHARGE_CURRENT_MAX:%d\n",
+		pr_debug("POWER_SUPPLY_PROP_CONSTANT_CHARGE_CURRENT_MAX:%d\n",
 						val->intval);		
 	
 		bq->fast_cc_ma = val->intval / 1000;
@@ -813,7 +790,7 @@ static int bq2560x_parallel_set_property(struct power_supply *psy,
 		break;
 		
 	case POWER_SUPPLY_PROP_CURRENT_MAX:
-		pr_err("POWER_SUPPLY_PROP_CURRENT_MAX:%d\n",
+		pr_debug("POWER_SUPPLY_PROP_CURRENT_MAX:%d\n",
 						val->intval);		
 		
 		bq->usb_psy_ma = val->intval / 1000;
@@ -822,7 +799,7 @@ static int bq2560x_parallel_set_property(struct power_supply *psy,
 						bq->usb_psy_ma);
 		break;
 	case POWER_SUPPLY_PROP_VOLTAGE_MAX:
-		pr_err("POWER_SUPPLY_PROP_VOLTAGE_MAX:%d\n",
+		pr_debug("POWER_SUPPLY_PROP_VOLTAGE_MAX:%d\n",
 						val->intval);		
 		
 		bq->vfloat_mv = val->intval / 1000;
@@ -867,7 +844,7 @@ static int bq2560x_parallel_get_property(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_CHARGING_ENABLED:
 		val->intval = !bq->parallel_charger_suspended;
 
-		pr_err("POWER_SUPPLY_PROP_CHARGING_ENABLED:%d\n", 
+		pr_debug("POWER_SUPPLY_PROP_CHARGING_ENABLED:%d\n", 
 				val->intval);
 		break;
 	case POWER_SUPPLY_PROP_CURRENT_MAX:
@@ -876,7 +853,7 @@ static int bq2560x_parallel_get_property(struct power_supply *psy,
 		else
 			val->intval = 0;
 	
-		pr_err("POWER_SUPPLY_PROP_CURRENT_MAX:%d\n", 
+		pr_debug("POWER_SUPPLY_PROP_CURRENT_MAX:%d\n", 
 			val->intval);
 		break;
 	case POWER_SUPPLY_PROP_VOLTAGE_MAX:
@@ -885,7 +862,7 @@ static int bq2560x_parallel_get_property(struct power_supply *psy,
 		else
 			val->intval = 0;
 
-		pr_err("POWER_SUPPLY_PROP_VOLTAGE_MAX:%d\n", 
+		pr_debug("POWER_SUPPLY_PROP_VOLTAGE_MAX:%d\n", 
 			val->intval);
 		break;
 	case POWER_SUPPLY_PROP_CHARGE_TYPE:
@@ -899,21 +876,17 @@ static int bq2560x_parallel_get_property(struct power_supply *psy,
 			}
 		}
 
-		pr_err("POWER_SUPPLY_PROP_CHARGE_TYPE:%d\n", 
+		pr_debug("POWER_SUPPLY_PROP_CHARGE_TYPE:%d\n", 
 			val->intval);
 		break;
-#if 0
-	case POWER_SUPPLY_PROP_INPUT_SUSPEND:
-		val->intval = bq->parallel_charger_suspended;
-		break;
-#endif		
+
 	case POWER_SUPPLY_PROP_CONSTANT_CHARGE_CURRENT_MAX:
 		if (!bq->parallel_charger_suspended)
 			val->intval = bq->fast_cc_ma * 1000;
 		else
 			val->intval = 0;
 
-		pr_err("POWER_SUPPLY_PROP_CONSTANT_CHARGE_CURRENT_MAX:%d\n", 
+		pr_debug("POWER_SUPPLY_PROP_CONSTANT_CHARGE_CURRENT_MAX:%d\n", 
 			val->intval);
 		break;
 		
@@ -923,7 +896,7 @@ static int bq2560x_parallel_get_property(struct power_supply *psy,
 		else
 			val->intval = POWER_SUPPLY_STATUS_DISCHARGING;
 
-		pr_err("POWER_SUPPLY_PROP_STATUS:%d\n", 
+		pr_debug("POWER_SUPPLY_PROP_STATUS:%d\n", 
 			val->intval);
 
 		break;
@@ -934,7 +907,7 @@ static int bq2560x_parallel_get_property(struct power_supply *psy,
 		else
 			val->intval = 0;
 
-		pr_err("POWER_SUPPLY_PROP_INPUT_CURRENT_LIMITED:%d\n", 
+		pr_debug("POWER_SUPPLY_PROP_INPUT_CURRENT_LIMITED:%d\n", 
 			val->intval);
 
 		break;
@@ -942,7 +915,7 @@ static int bq2560x_parallel_get_property(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_PARALLEL_MODE:
 		val->intval = POWER_SUPPLY_PL_USBIN_USBIN;
 		//val->intval = POWER_SUPPLY_PL_USBMID_USBMID;
-		pr_err("POWER_SUPPLY_PROP_PARALLEL_MODE:%d\n", 
+		pr_debug("POWER_SUPPLY_PROP_PARALLEL_MODE:%d\n", 
 			val->intval);
 		break;
 	
