@@ -1,0 +1,6 @@
+config CHARGER_BQ25600_SLAVE
+	tristate "TI BQ25600 battery charger driver"
+	depends on I2C
+	default y
+	help
+	  Say Y to enable support for TI bq25600 as slave charger
