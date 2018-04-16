@@ -1,0 +1,13 @@
+bq25600@6B {
+			compatible = "ti,bq25600-slave";
+			reg = <0x6B>;
+
+			/*ti,bq2560x,enable-term;*/
+
+			ti,bq2560x,charge-voltage = <4400>;
+			ti,bq2560x,charge-current = <3000>;
+			ti,bq2560x,input-current-limit = <3000>;
+			ti,bq2560x,input-voltage-limit = <4500>;
+			ti,bq2560x,vbatlow-volt = <3500>;
+			ti,bq2560x,term-current = <500>;
+};
