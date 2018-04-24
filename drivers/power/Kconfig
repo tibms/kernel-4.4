@@ -511,6 +511,7 @@ config AXP20X_POWER
 source "drivers/power/reset/Kconfig"
 source "drivers/power/bq25600-slave/Kconfig"
 source "drivers/power/bq25910-slave/Kconfig"
+source "drivers/power/bq27z860/Kconfig"
 
 endif # POWER_SUPPLY
 
