@@ -1,0 +1,1 @@
+obj-$(CONFIG_FUEL_GAUGE_BQ27Z860)	+= bq27z860_fg.o

@@ -1,0 +1,6 @@
+config FUEL_GAUGE_BQ27Z860
+	tristate "TI BQ25910 battery charger driver"
+	depends on I2C
+	default y
+	help
+	  Say Y to enable support for TI bq25910 as slave charger
