@@ -1,0 +1,1 @@
+obj-$(CONFIG_FUEL_GAUGE_BQ27532)	+= bq27532_fg.o

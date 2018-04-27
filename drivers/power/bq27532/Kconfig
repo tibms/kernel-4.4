@@ -1,0 +1,6 @@
+config FUEL_GAUGE_BQ27532
+	tristate "TI BQ27532 battery charger driver"
+	depends on I2C
+	default y
+	help
+	  Say Y to enable support for TI bq27532 fuel gauge driver
