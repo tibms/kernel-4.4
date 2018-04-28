@@ -513,6 +513,7 @@ source "drivers/power/bq25600-slave/Kconfig"
 source "drivers/power/bq25910-slave/Kconfig"
 source "drivers/power/bq27z860/Kconfig"
 source "drivers/power/bq27532/Kconfig"
+source "drivers/power/bq27z561/Kconfig"
 
 endif # POWER_SUPPLY
 

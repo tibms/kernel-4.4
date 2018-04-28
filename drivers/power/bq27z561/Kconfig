@@ -1,0 +1,6 @@
+config FUEL_GAUGE_BQ27Z561
+	tristate "TI bq27z561 battery gauge driver"
+	depends on I2C
+	default y
+	help
+	  Say Y to enable support for TI bq27z561 fuel gauge driver
