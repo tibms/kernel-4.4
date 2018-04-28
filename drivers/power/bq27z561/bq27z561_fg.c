@@ -825,7 +825,7 @@ static enum power_supply_property fg_props[] = {
 static int fg_get_property(struct power_supply *psy, enum power_supply_property psp,
 					union power_supply_propval *val)
 {
-	struct bq_fg_chip *bq = power_supply_get_drvdata(psy); 
+	struct bq_fg_chip *bq = power_supply_get_drvdata(psy);
 	int ret;
 
 	switch (psp) {
@@ -1030,7 +1030,7 @@ static ssize_t fg_attr_show_Ra_table(struct device *dev,
 	u8 t_buf[40];
 	u8 temp_buf[40];
 	int ret;
-	int i,idx, len;
+	int i, idx, len;
 
 	ret = fg_mac_read_block(bq, 0x40C0, t_buf, 32);
 	if (ret < 0)

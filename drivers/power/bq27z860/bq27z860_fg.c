@@ -86,7 +86,7 @@ enum bq_fg_device {
 	BQ27Z860,
 };
 
-const unsigned char *device2str[] = {
+static const unsigned char *device2str[] = {
 	"bq27z860",
 };
 
@@ -174,7 +174,7 @@ static int __fg_read_byte(struct i2c_client *client, u8 reg, u8 *val)
 
 	return 0;
 }
-
+#if 0
 static int __fg_write_byte(struct i2c_client *client, u8 reg, u8 val)
 {
 	s32 ret;
@@ -188,7 +188,7 @@ static int __fg_write_byte(struct i2c_client *client, u8 reg, u8 val)
 
 	return 0;
 }
-
+#endif
 
 static int __fg_read_word(struct i2c_client *client, u8 reg, u16 *val)
 {
@@ -257,6 +257,7 @@ static int fg_read_byte(struct bq_fg_chip *bq, u8 reg, u8 *val)
 	return ret;
 }
 
+#if 0
 static int fg_write_byte(struct bq_fg_chip *bq, u8 reg, u8 val)
 {
 	int ret;
@@ -270,6 +271,7 @@ static int fg_write_byte(struct bq_fg_chip *bq, u8 reg, u8 val)
 
 	return ret;
 }
+#endif
 
 static int fg_read_word(struct bq_fg_chip *bq, u8 reg, u16 *val)
 {
@@ -362,7 +364,7 @@ static void fg_print_buf(const char *msg, u8 *buf, u8 len)
 {}
 #endif
 
-
+#if 0
 #define TIMEOUT_INIT_COMPLETED	100
 static int fg_check_init_completed(struct bq_fg_chip *bq)
 {
@@ -379,7 +381,9 @@ static int fg_check_init_completed(struct bq_fg_chip *bq)
 	bq_err("wait for FG INITCOMP timeout\n");
 	return ret;
 }
+#endif
 
+#if 0
 static int fg_get_seal_state(struct bq_fg_chip *bq)
 {
 	int ret;
@@ -493,12 +497,7 @@ static int fg_seal(struct bq_fg_chip *bq)
 
 	return -1;
 }
-
-#define	DM_ACCESS_BLOCK_DATA_CHKSUM	0x60
-#define	DM_ACCESS_BLOCK_DATA_CTRL	0x61
-#define	DM_ACCESS_BLOCK_DATA_CLASS	0x3E
-#define	DM_ACCESS_DATA_BLOCK		0x3F
-#define	DM_ACCESS_BLOCK_DATA		0x40
+#endif
 
 static int fg_mac_read_block(struct bq_fg_chip *bq, u16 cmd, u8 *buf, u8 len)
 {
@@ -536,6 +535,7 @@ static int fg_mac_read_block(struct bq_fg_chip *bq, u16 cmd, u8 *buf, u8 len)
 }
 EXPORT_SYMBOL_GPL(fg_mac_read_block);
 
+#if 0
 static int fg_mac_write_block(struct bq_fg_chip *bq, u16 cmd, u8 *data, u8 len)
 {
 	int ret;
@@ -563,7 +563,7 @@ static int fg_mac_write_block(struct bq_fg_chip *bq, u16 cmd, u8 *data, u8 len)
 
 	return ret;
 }
-EXPORT_SYMBOL_GPL(fg_mac_write_block);
+#endif
 
 static void fg_read_fw_version(struct bq_fg_chip *bq)
 {
@@ -826,7 +826,7 @@ static enum power_supply_property fg_props[] = {
 static int fg_get_property(struct power_supply *psy, enum power_supply_property psp,
 					union power_supply_propval *val)
 {
-	struct bq_fg_chip *bq = power_supply_get_drvdata(psy); 
+	struct bq_fg_chip *bq = power_supply_get_drvdata(psy);
 	int ret;
 
 	switch (psp) {
@@ -1031,7 +1031,7 @@ static ssize_t fg_attr_show_Ra_table(struct device *dev,
 	u8 t_buf[40];
 	u8 temp_buf[40];
 	int ret;
-	int i,idx, len;
+	int i, idx, len;
 
 	ret = fg_mac_read_block(bq, 0x40C0, t_buf, 32);
 	if (ret < 0)
@@ -1090,7 +1090,7 @@ static ssize_t fg_attr_show_isd_short(struct device *dev,
 	if (ret < 0)
 		return 0;
 
-	len = sprintf(buf, "ISD Fine short:%d\nISD Coarse short:%d\n", 
+	len = sprintf(buf, "ISD Fine short:%d\nISD Coarse short:%d\n",
 				isd_fine, isd_coarse);
 
 	return len;
