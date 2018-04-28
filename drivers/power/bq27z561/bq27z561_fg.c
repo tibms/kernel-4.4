@@ -1162,10 +1162,8 @@ static int bq_fg_probe(struct i2c_client *client,
 
 	bq = devm_kzalloc(&client->dev, sizeof(*bq), GFP_KERNEL);
 
-	if (!bq) {
-		bq_err("Could not allocate memory\n");
+	if (!bq)
 		return -ENOMEM;
-	}
 
 	bq->dev = &client->dev;
 	bq->client = client;

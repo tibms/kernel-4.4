@@ -283,7 +283,7 @@ static int bq2591x_get_chargecurrent(struct bq2591x *bq, int *curr)
 		ichg = ichg >> BQ2591X_ICHG_SHIFT;
 		*curr = ichg * BQ2591X_ICHG_LSB + BQ2591X_ICHG_BASE;
 	}
-	
+
 	return ret;
 }
 
@@ -549,13 +549,12 @@ static int bq2591x_usb_suspend(struct bq2591x *bq, int reason, bool suspend)
 		suspended |= reason;
 
 	pr_debug("new suspended_status = %d\n", suspended);
-	
-	if (suspended){
+
+	if (suspended)
 		rc = bq2591x_disable_charger(bq);
-	} else {
+	else
 		rc = bq2591x_enable_charger(bq);
-	}
-	
+
 	if (rc)
 		pr_err("Couldn't suspend rc = %d\n", rc);
 	else
@@ -649,7 +648,7 @@ static bool bq2591x_is_input_current_limited(struct bq2591x *bq)
 {
 	int rc;
 	u8 status;
-	
+
 	rc = bq2591x_read_byte(bq, &status, BQ2591X_REG_07);
 	if (rc) {
 		pr_err("Failed to read INDPM STATUS register:%d\n", rc);
@@ -716,7 +715,7 @@ static int bq2591x_parallel_set_chg_suspend(struct bq2591x *bq, int suspend)
 
 static void bq2591x_icl_softstart_workfunc(struct work_struct *work)
 {
-	struct bq2591x *bq = container_of(work, struct bq2591x, 
+	struct bq2591x *bq = container_of(work, struct bq2591x,
 					icl_softstart_work.work);
 	int icl_set;
 	int ret;
@@ -725,7 +724,7 @@ static void bq2591x_icl_softstart_workfunc(struct work_struct *work)
 	if (!ret) {
 		if (bq->usb_psy_ma < icl_set) {
 			bq2591x_set_input_current_limit(bq, bq->usb_psy_ma);
-		} else 	if (bq->usb_psy_ma - icl_set < BQ2591X_IINLIM_LSB) {
+		} else if (bq->usb_psy_ma - icl_set < BQ2591X_IINLIM_LSB) {
 			pr_debug("icl softstart done!\n");
 			return;/*softstart done*/
 		} else {
@@ -734,7 +733,7 @@ static void bq2591x_icl_softstart_workfunc(struct work_struct *work)
 			bq2591x_set_input_current_limit(bq, icl_set);
 			schedule_delayed_work(&bq->icl_softstart_work, HZ / 10);
 		}
-			
+
 	} else {
 		schedule_delayed_work(&bq->icl_softstart_work, HZ / 10);
 	}
@@ -768,7 +767,7 @@ static int bq2591x_set_usb_chg_current(struct bq2591x *bq, int current_ma)
 
 static void bq2591x_fcc_softstart_workfunc(struct work_struct *work)
 {
-	struct bq2591x *bq = container_of(work, struct bq2591x, 
+	struct bq2591x *bq = container_of(work, struct bq2591x,
 					fcc_softstart_work.work);
 	int fcc_set;
 	int ret;
@@ -777,7 +776,7 @@ static void bq2591x_fcc_softstart_workfunc(struct work_struct *work)
 	if (!ret) {
 		if (bq->fast_cc_ma < fcc_set) {
 			bq2591x_set_chargecurrent(bq, bq->fast_cc_ma);
-		} else 	if (bq->fast_cc_ma - fcc_set < BQ2591X_ICHG_LSB) {
+		} else if (bq->fast_cc_ma - fcc_set < BQ2591X_ICHG_LSB) {
 			pr_debug("fcc softstart done!\n");
 			return;/*softstart done*/
 		} else {
@@ -786,7 +785,7 @@ static void bq2591x_fcc_softstart_workfunc(struct work_struct *work)
 			bq2591x_set_chargecurrent(bq, fcc_set);
 			schedule_delayed_work(&bq->fcc_softstart_work, HZ / 10);
 		}
-			
+
 	} else {
 		schedule_delayed_work(&bq->fcc_softstart_work, HZ / 10);
 	}
@@ -804,7 +803,7 @@ static int bq2591x_set_fast_chg_current(struct bq2591x *bq, int current_ma)
 	} else {
 		ret = bq2591x_set_chargecurrent(bq, current_ma);
 	}
-	
+
 	return ret;
 }
 
@@ -813,7 +812,7 @@ static enum power_supply_property bq2591x_charger_properties[] = {
 	POWER_SUPPLY_PROP_STATUS,
 	POWER_SUPPLY_PROP_CURRENT_MAX,
 	POWER_SUPPLY_PROP_VOLTAGE_MAX,
-	POWER_SUPPLY_PROP_INPUT_CURRENT_LIMITED, 
+	POWER_SUPPLY_PROP_INPUT_CURRENT_LIMITED,
 	POWER_SUPPLY_PROP_CONSTANT_CHARGE_CURRENT_MAX,
 	POWER_SUPPLY_PROP_CHARGE_TYPE,
 	POWER_SUPPLY_PROP_PARALLEL_MODE,
@@ -839,23 +838,23 @@ static int bq2591x_charger_set_property(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_INPUT_SUSPEND:
 		pr_debug("POWER_SUPPLY_PROP_INPUT_SUSPEND:%d\n",
 						val->intval);
-		
+
 		rc = bq2591x_parallel_set_chg_suspend(bq, val->intval);
 		break;
 
 	case POWER_SUPPLY_PROP_CONSTANT_CHARGE_CURRENT_MAX:
 		pr_debug("POWER_SUPPLY_PROP_CONSTANT_CHARGE_CURRENT_MAX:%d\n",
-						val->intval);		
-	
+						val->intval);
+
 		bq->fast_cc_ma = val->intval / 1000;
 		if (!bq->parallel_charger_suspended)
 			rc = bq2591x_set_fast_chg_current(bq, bq->fast_cc_ma);
 		break;
-		
+
 	case POWER_SUPPLY_PROP_CURRENT_MAX:
 		pr_debug("POWER_SUPPLY_PROP_CURRENT_MAX:%d\n",
-						val->intval);		
-		
+						val->intval);
+
 		bq->usb_psy_ma = val->intval / 1000;
 		if (!bq->parallel_charger_suspended)
 			rc = bq2591x_set_usb_chg_current(bq,
@@ -863,8 +862,8 @@ static int bq2591x_charger_set_property(struct power_supply *psy,
 		break;
 	case POWER_SUPPLY_PROP_VOLTAGE_MAX:
 		pr_debug("POWER_SUPPLY_PROP_VOLTAGE_MAX:%d\n",
-						val->intval);		
-		
+						val->intval);
+
 		bq->vfloat_mv = val->intval / 1000;
 		if (!bq->parallel_charger_suspended)
 			rc = bq2591x_set_chargevoltage(bq, bq->vfloat_mv);
@@ -906,7 +905,7 @@ static int bq2591x_charger_get_property(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_CHARGING_ENABLED:
 		val->intval = !bq->parallel_charger_suspended;
 
-		pr_debug("POWER_SUPPLY_PROP_CHARGING_ENABLED:%d\n", 
+		pr_debug("POWER_SUPPLY_PROP_CHARGING_ENABLED:%d\n",
 				val->intval);
 		break;
 	case POWER_SUPPLY_PROP_CURRENT_MAX:
@@ -914,8 +913,8 @@ static int bq2591x_charger_get_property(struct power_supply *psy,
 			val->intval = bq->usb_psy_ma * 1000;
 		else
 			val->intval = 0;
-	
-		pr_debug("POWER_SUPPLY_PROP_CURRENT_MAX:%d\n", 
+
+		pr_debug("POWER_SUPPLY_PROP_CURRENT_MAX:%d\n",
 			val->intval);
 		break;
 	case POWER_SUPPLY_PROP_VOLTAGE_MAX:
@@ -924,7 +923,7 @@ static int bq2591x_charger_get_property(struct power_supply *psy,
 		else
 			val->intval = 0;
 
-		pr_debug("POWER_SUPPLY_PROP_VOLTAGE_MAX:%d\n", 
+		pr_debug("POWER_SUPPLY_PROP_VOLTAGE_MAX:%d\n",
 			val->intval);
 		break;
 	case POWER_SUPPLY_PROP_CHARGE_TYPE:
@@ -938,7 +937,7 @@ static int bq2591x_charger_get_property(struct power_supply *psy,
 			}
 		}
 
-		pr_debug("POWER_SUPPLY_PROP_CHARGE_TYPE:%d\n", 
+		pr_debug("POWER_SUPPLY_PROP_CHARGE_TYPE:%d\n",
 			val->intval);
 		break;
 
@@ -948,36 +947,36 @@ static int bq2591x_charger_get_property(struct power_supply *psy,
 		else
 			val->intval = 0;
 
-		pr_debug("POWER_SUPPLY_PROP_CONSTANT_CHARGE_CURRENT_MAX:%d\n", 
+		pr_debug("POWER_SUPPLY_PROP_CONSTANT_CHARGE_CURRENT_MAX:%d\n",
 			val->intval);
 		break;
-		
+
 	case POWER_SUPPLY_PROP_STATUS:
 		if (!bq->parallel_charger_suspended)
 			val->intval = bq2591x_get_charging_status(bq);
 		else
 			val->intval = POWER_SUPPLY_STATUS_DISCHARGING;
 
-		pr_debug("POWER_SUPPLY_PROP_STATUS:%d\n", 
+		pr_debug("POWER_SUPPLY_PROP_STATUS:%d\n",
 			val->intval);
 
 		break;
-		
+
 	case POWER_SUPPLY_PROP_INPUT_CURRENT_LIMITED:
 		if (!bq->parallel_charger_suspended)
 			val->intval = bq2591x_is_input_current_limited(bq) ? 1 : 0;
 		else
 			val->intval = 0;
 
-		pr_debug("POWER_SUPPLY_PROP_INPUT_CURRENT_LIMITED:%d\n", 
+		pr_debug("POWER_SUPPLY_PROP_INPUT_CURRENT_LIMITED:%d\n",
 			val->intval);
 
 		break;
-		 
+
 	case POWER_SUPPLY_PROP_PARALLEL_MODE:
 		val->intval = POWER_SUPPLY_PL_USBIN_USBIN;
-		//val->intval = POWER_SUPPLY_PL_USBMID_USBMID;
-		pr_debug("POWER_SUPPLY_PROP_PARALLEL_MODE:%d\n", 
+		/* val->intval = POWER_SUPPLY_PL_USBMID_USBMID;*/
+		pr_debug("POWER_SUPPLY_PROP_PARALLEL_MODE:%d\n",
 			val->intval);
 		break;
 	default:
@@ -1026,7 +1025,7 @@ static int bq2591x_parse_dt(struct device *dev, struct bq2591x *bq)
 
 	if (ret)
 		return ret;
-	
+
 	ret = of_property_read_u32(np, "ti,bq2591x,term-current",
 					&bq->cfg.iterm_ma);
 
@@ -1233,7 +1232,7 @@ static void bq2591x_monitor_workfunc(struct work_struct *work)
 	struct bq2591x *bq = container_of(work, struct bq2591x, monitor_work.work);
 
 	bq2591x_dump_regs(bq);
-	
+
 	schedule_delayed_work(&bq->monitor_work, 5 * HZ);
 }
 
@@ -1245,10 +1244,8 @@ static int bq2591x_charger_probe(struct i2c_client *client,
 	struct power_supply_config parallel_psy_cfg = {};
 
 	bq = devm_kzalloc(&client->dev, sizeof(struct bq2591x), GFP_KERNEL);
-	if (!bq) {
-		pr_err("out of memory\n");
+	if (!bq)
 		return -ENOMEM;
-	}
 
 	bq->dev = &client->dev;
 	bq->client = client;
@@ -1377,4 +1374,4 @@ static struct i2c_driver bq2591x_charger_driver = {
 module_i2c_driver(bq2591x_charger_driver);
 
 MODULE_DESCRIPTION("TI BQ2591x Charger Driver");
-MODULE_LICENSE("GPL2");
+MODULE_LICENSE("GPL v2");

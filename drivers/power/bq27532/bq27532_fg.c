@@ -1211,7 +1211,7 @@ static bool fg_update_bqfs_execute_cmd(struct bq_fg_chip *bq,
 
 	switch (cmd->cmd_type) {
 	case CMD_R:
-		ret = fg_read_block(bq, cmd->reg, 
+		ret = fg_read_block(bq, cmd->reg,
 					(u8 *)&cmd->data.bytes,
 					cmd->data_len);
 		if (ret < 0)
@@ -1666,10 +1666,8 @@ static int bq_fg_probe(struct i2c_client *client,
 
 	bq = devm_kzalloc(&client->dev, sizeof(*bq), GFP_KERNEL);
 
-	if (!bq) {
-		bq_err("Could not allocate memory\n");
+	if (!bq)
 		return -ENOMEM;
-	}
 
 	bq->dev = &client->dev;
 	bq->client = client;
