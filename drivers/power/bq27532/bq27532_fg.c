@@ -40,7 +40,7 @@
 #include <linux/debugfs.h>
 #include <linux/alarmtimer.h>
 #include "bqfs_cmd_type.h"
-#include "bq27532_gmfs_coslight.h"
+#include "bq27532_dffs_sample.h"
 
 #define	bq_info	pr_info
 #define bq_dbg	pr_debug
@@ -116,7 +116,7 @@ struct fg_batt_profile {
 };
 
 static const struct fg_batt_profile bqfs_image[] = {
-	{ bqfs_coslight, ARRAY_SIZE(bqfs_coslight), 1 }, /*100*/
+	{ bqfs_sample, ARRAY_SIZE(bqfs_sample), 1 }, /*100*/
 };
 
 static const unsigned char *device2str[] = {
