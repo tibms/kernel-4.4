@@ -77,3 +77,4 @@ obj-y	+= bq25910-slave/
 obj-y	+= bq27z860/
 obj-y	+= bq27532/
 obj-y	+= bq27z561/
+obj-y	+= bq2597x/
