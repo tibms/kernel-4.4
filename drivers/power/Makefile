@@ -78,3 +78,6 @@ obj-y	+= bq27z860/
 obj-y	+= bq27532/
 obj-y	+= bq27z561/
 obj-y	+= bq2597x/
+obj-y	+= bq25700/
+obj-y	+= bq40z50/
+
