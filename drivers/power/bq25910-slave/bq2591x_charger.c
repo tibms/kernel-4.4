@@ -816,6 +816,7 @@ static enum power_supply_property bq2591x_charger_properties[] = {
 	POWER_SUPPLY_PROP_CONSTANT_CHARGE_CURRENT_MAX,
 	POWER_SUPPLY_PROP_CHARGE_TYPE,
 	POWER_SUPPLY_PROP_PARALLEL_MODE,
+	POWER_SUPPLY_PROP_INPUT_SUSPEND,
 };
 
 static int bq2591x_charger_set_property(struct power_supply *psy,
@@ -1251,6 +1252,8 @@ static int bq2591x_charger_probe(struct i2c_client *client,
 	bq->client = client;
 
 	i2c_set_clientdata(client, bq);
+
+	bq->parallel_charger_suspended = true;
 
 	mutex_init(&bq->i2c_rw_lock);
 
