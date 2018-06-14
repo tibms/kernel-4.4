@@ -57,7 +57,6 @@ struct bq2591x_config {
 	int ivl_mv;
 	int icl_ma;
 
-	int iterm_ma;
 	int batlow_mv;
 
 	bool enable_term;
@@ -286,29 +285,6 @@ static int bq2591x_get_chargecurrent(struct bq2591x *bq, int *curr)
 
 	return ret;
 }
-
-int bq2591x_set_term_current(struct bq2591x *bq, int curr)
-{
-	u8 iterm;
-
-	if (curr == 500)
-		iterm = BQ2591X_ITERM_500MA;
-	else if (curr == 650)
-		iterm = BQ2591X_ITERM_650MA;
-	else if (curr == 800)
-		iterm = BQ2591X_ITERM_800MA;
-	else if (curr == 1000)
-		iterm = BQ2591X_ITERM_1000MA;
-	else
-		iterm = BQ2591X_ITERM_1000MA;
-
-	iterm <<= BQ2591X_ITERM_SHIFT;
-
-	return bq2591x_update_bits(bq, BQ2591X_REG_04,
-				BQ2591X_ITERM_MASK, iterm);
-}
-EXPORT_SYMBOL_GPL(bq2591x_set_term_current);
-
 
 int bq2591x_set_chargevoltage(struct bq2591x *bq, int volt)
 {
@@ -1027,9 +1003,6 @@ static int bq2591x_parse_dt(struct device *dev, struct bq2591x *bq)
 	if (ret)
 		return ret;
 
-	ret = of_property_read_u32(np, "ti,bq2591x,term-current",
-					&bq->cfg.iterm_ma);
-
 	return ret;
 }
 
@@ -1103,11 +1076,6 @@ static int bq2591x_init_device(struct bq2591x *bq)
 	if (ret < 0)
 		pr_err("Failed to set vbatlow volt to %d,rc=%d\n",
 					bq->cfg.batlow_mv, ret);
-
-	ret = bq2591x_set_term_current(bq, bq->cfg.iterm_ma);
-	if (ret < 0)
-		pr_err("Failed to set iterm to %d, rc=%d\n",
-					bq->cfg.iterm_ma, ret);
 
 	bq2591x_set_charge_profile(bq);
 

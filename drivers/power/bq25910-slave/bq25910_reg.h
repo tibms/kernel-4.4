@@ -34,12 +34,6 @@
 
 /* Register 04h */
 #define BQ2591X_REG_04		    	0x04
-#define	BQ2591X_ITERM_MASK			0x03
-#define	BQ2591X_ITERM_SHIFT			0
-#define	BQ2591X_ITERM_500MA			0
-#define	BQ2591X_ITERM_650MA			1
-#define	BQ2591X_ITERM_800MA			2
-#define	BQ2591X_ITERM_1000MA		3
 
 /* Register 05h */
 #define BQ2591X_REG_05		    	0x05
