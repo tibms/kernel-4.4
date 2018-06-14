@@ -326,7 +326,6 @@ static int fg_mac_read_block(struct bq_fg_chip *bq, u16 cmd, u8 *buf, u8 len)
 
 	return 0;
 }
-EXPORT_SYMBOL_GPL(fg_mac_read_block);
 
 #if 0
 static int fg_mac_write_block(struct bq_fg_chip *bq, u16 cmd, u8 *data, u8 len)
