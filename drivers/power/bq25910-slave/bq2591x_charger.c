@@ -1231,6 +1231,7 @@ static int bq2591x_charger_probe(struct i2c_client *client,
 							bq->revision);
 	} else {
 		pr_info("no bq25910 charger device found:%d\n", ret);
+		mutex_destroy(&bq->i2c_rw_lock);
 		return -ENODEV;
 	}
 
@@ -1264,6 +1265,7 @@ static int bq2591x_charger_probe(struct i2c_client *client,
 		pr_err("Couldn't register parallel psy rc=%ld\n",
 				PTR_ERR(bq->parallel_psy));
 		ret = PTR_ERR(bq->parallel_psy);
+		mutex_destroy(&bq->i2c_rw_lock);
 		return ret;
 	}
 
@@ -1290,6 +1292,7 @@ static int bq2591x_charger_probe(struct i2c_client *client,
 	return 0;
 
 err_0:
+	mutex_destroy(&bq->i2c_rw_lock);
 	power_supply_unregister(bq->parallel_psy);
 	return ret;
 }
