@@ -80,4 +80,5 @@ obj-y	+= bq27z561/
 obj-y	+= bq2597x/
 obj-y	+= bq25700/
 obj-y	+= bq40z50/
+obj-y	+= bq2588x/
 
