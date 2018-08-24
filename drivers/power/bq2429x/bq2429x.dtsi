@@ -1,0 +1,21 @@
+        bq24295@6B{
+            compatible = "ti,charger,bq24295";
+            reg = <0x6B>;
+			
+            ti,bq2429x,usb-vlim = <4400>;
+            ti,bq2429x,usb-ilim = <500>;
+            ti,bq2429x,usb-ichg = <500>;
+			ti,bq2429x,usb-vreg = <4200>;
+
+            ti,bq2429x,ta-vlim = <4400>;
+            ti,bq2429x,ta-ilim = <2000>;
+            ti,bq2429x,ta-ichg = <2000>;
+			ti,bq2429x,ta-vreg = <4200>;		
+			
+			ti,bq2429x,precharge-current = <180>;
+			ti,bq2429x,termination-current = <180>;
+			ti,bq2429x,boost-volt = <5000>;
+			ti,bq2429x,enable_term;
+		};
+
+      };
