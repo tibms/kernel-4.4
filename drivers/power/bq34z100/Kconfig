@@ -1,0 +1,6 @@
+config CHARGER_BQ34Z100
+	tristate "TI BQ34Z100 battery gauge driver"
+	depends on I2C
+	default y
+	help
+	  Say Y to enable support for TI bq34z100 gauge driver

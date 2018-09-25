@@ -1,0 +1,1 @@
+obj-$(CONFIG_CHARGER_BQ34Z100)	+= bq34z100_fg.o

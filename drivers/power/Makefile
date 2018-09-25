@@ -83,4 +83,5 @@ obj-y	+= bq40z50/
 #obj-y	+= bq2588x/
 #obj-y	+= bq2429x/
 obj-y	+= bq28z610/
+obj-y	+= bq34z100/
 
