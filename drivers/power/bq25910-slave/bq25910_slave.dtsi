@@ -1,6 +1,6 @@
-bq25910@6B {
+bq25910@4B {
 			compatible = "ti,bq2591x";
-			reg = <0x6B>;
+			reg = <0x4B>;
 
 			/*ti,bq2591x,enable-term;*/
 
