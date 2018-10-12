@@ -832,6 +832,35 @@ static int bq2588x_set_adc_scan_bits(struct bq2588x *bq, int bits)
 	return ret;
 }
 
+
+static int bq2588x_check_adc_scan_done(struct bq2588x *bq, bool *done)
+{
+	int ret;
+	u8 reg_val;
+
+	ret = bq2588x_read_reg(bq, BQ2588X_REG_CHG_STATUS1, &reg_val);
+	if (!ret) 
+		*done = !!(reg_val & BQ2588X_ADC_DONE_STAT_MASK);
+
+	return ret;
+}
+
+static int bq2588x_wait_adc_scan_done(struct bq2588x *bq)
+{
+	int ret;
+	bool done = false;
+	int retry = 0;
+
+	while(retry++ < 20)
+		ret = bq2588x_check_adc_scan_done(bq, &done);
+		if (!ret && done)
+			return 1;
+		msleep(100);
+	}
+
+	return 0;
+}
+
 #define ADC_RES_REG_BASE	0x17
 
 static int bq2588x_read_adc_data(struct bq2588x *bq, u8 channel, int *val)
@@ -1701,9 +1730,7 @@ static int bq2588x_init_device(struct bq2588x *bq)
 		INT_MASK_OTG | INT_MASK_IINDPM | INT_MASK_VINDPM;
 	bq2588x_set_int_mask(bq, mask);
 
-	bq2588x_set_adc_scan_mode(bq, false);
 	bq2588x_set_adc_scan_bits(bq, 15);
-	bq2588x_enable_adc_scan(bq, true);
 
 	return 0;
 }
@@ -1727,7 +1754,12 @@ static int bq2588x_detect_device(struct bq2588x *bq)
 
 static void bq2588x_update_status(struct bq2588x *bq)
 {
+	bq2588x_enable_adc_scan(bq, true);
+	/* do one-shot scan */
+	bq2588x_set_adc_scan_mode(bq, true);
 
+	bq2588x_wait_adc_scan_done(bq);
+	
 	bq2588x_read_bus_volt(bq, &bq->vbus_volt);
 	bq2588x_read_bat_volt(bq, &bq->vbat_volt);
 	bq2588x_read_bus_curr(bq, &bq->ibus_curr);
