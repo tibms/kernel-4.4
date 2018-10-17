@@ -742,9 +742,9 @@ static int fg_read_status(struct bq_fg_chip *bq)
 static int fg_read_rsoc(struct bq_fg_chip *bq)
 {
 	int ret;
-	u16 soc = 0;
+	u8 soc = 0;
 
-	ret = fg_read_word(bq, bq->regs[BQ_FG_REG_SOC], &soc);
+	ret = fg_read_byte(bq, bq->regs[BQ_FG_REG_SOC], &soc);
 	if (ret < 0) {
 		bq_err("could not read RSOC, ret = %d\n", ret);
 		return ret;
