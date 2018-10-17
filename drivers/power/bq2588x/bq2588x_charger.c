@@ -1430,6 +1430,9 @@ static int bq2588x_otg_regulator_enable(struct regulator_dev *rdev)
 	int ret;
 	struct bq2588x *bq = rdev_get_drvdata(rdev);
 
+	/*force to exit hiz mode, bq2588x may hiz automatically due to some fault*/
+	bq2588x_set_hiz_mode(bq, false);
+
 	bq->saved_charge_enable = bq->charge_enabled;
 	if (bq->charge_enabled)
 		bq2588x_charging_disable(bq, OTG, true);
