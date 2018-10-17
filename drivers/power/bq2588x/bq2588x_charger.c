@@ -50,6 +50,7 @@ enum {
 	JEITA		= BIT(1),
 	BATT_FC		= BIT(2),		/* Batt FULL */
 	BATT_PRES	= BIT(3),
+	OTG		= BIT(4),
 };
 
 
@@ -170,7 +171,7 @@ struct bq2588x {
 	int charge_state;
 	int charging_disabled_status;
 
-
+	bool saved_charge_enable;
 	bool charge_enabled;	/* Register bit status */
 	bool otg_enabled;
 	bool vindpm_triggered;
@@ -1429,6 +1430,9 @@ static int bq2588x_otg_regulator_enable(struct regulator_dev *rdev)
 	int ret;
 	struct bq2588x *bq = rdev_get_drvdata(rdev);
 
+	bq->saved_charge_enable = bq->charge_enabled;
+	if (bq->charge_enabled)
+		bq2588x_charging_disable(bq, OTG, true);
 	ret = bq2588x_otg_enable(bq, true);
 	if (ret) {
 		bq_err("Couldn't enable OTG mode ret=%d\n", ret);
@@ -1445,6 +1449,8 @@ static int bq2588x_otg_regulator_disable(struct regulator_dev *rdev)
 {
 	int ret;
 	struct bq2588x *bq = rdev_get_drvdata(rdev);
+
+	bq2588x_charging_disable(bq, OTG, bq->saved_charge_enable);
 
 	ret = bq2588x_otg_enable(bq, false);
 	if (ret) {
