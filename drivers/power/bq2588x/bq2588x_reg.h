@@ -16,7 +16,7 @@
 #define BQ2588X_EN_ILIM_SHIFT                     6
 #define BQ2588X_ILIM_PIN_DISABLE                  0
 #define BQ2588X_ILIM_PIN_ENABLE                   1
-#define BQ2588X_ICHG_MASK                         0x1F
+#define BQ2588X_ICHG_MASK                         0x3F
 #define BQ2588X_ICHG_SHIFT                        0
 #define BQ2588X_ICHG_BASE                         0
 #define BQ2588X_ICHG_LSB                          50
