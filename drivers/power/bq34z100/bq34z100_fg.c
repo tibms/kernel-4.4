@@ -1258,14 +1258,9 @@ static bool fg_update_bqfs_execute_cmd(struct bq_fg_chip *bq,
 			return true;
 		break;
 	case CMD_W:
-		if (!fg_update_bqfs_write_block(bq, cmd->reg,
-				(u8 *)&cmd->data.bytes, cmd->data_len)) {
-			bq_err("Failed to write block:%d\n", ret);
-			return false;
-		} else {
-			return true;
-		}
-		break;
+		return fg_update_bqfs_write_block(bq, cmd->reg,
+					(u8 *)&cmd->data.bytes,
+					cmd->data_len);
 	case CMD_C:
 		if (fg_read_block(bq, cmd->reg, tmp_buf, cmd->data_len) < 0)
 			return false;

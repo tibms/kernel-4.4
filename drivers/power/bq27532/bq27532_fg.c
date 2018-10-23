@@ -1202,6 +1202,32 @@ static int fg_check_update_necessary(struct bq_fg_chip *bq)
 		return 0;
 }
 
+
+static bool fg_update_bqfs_write_block(struct bq_fg_chip *bq, u8 reg, 
+				u8* buf, u8 len)
+{
+#define I2C_BLK_SIZE	30
+	int ret;
+	u8 wr_len = 0;
+
+	while (len > I2C_BLK_SIZE) {
+		ret = fg_write_block(bq, reg + wr_len, buf + wr_len, I2C_BLK_SIZE);
+		if (ret < 0)
+			return false;
+		wr_len += I2C_BLK_SIZE;
+		len -= I2C_BLK_SIZE;
+	};
+
+	if (len) {
+		ret = fg_write_block(bq, reg + wr_len, buf + wr_len, len);
+		if (ret < 0)
+			return false;
+	}
+
+	return true;
+}
+
+
 static bool fg_update_bqfs_execute_cmd(struct bq_fg_chip *bq,
 					const bqfs_cmd_t *cmd)
 {
@@ -1220,14 +1246,9 @@ static bool fg_update_bqfs_execute_cmd(struct bq_fg_chip *bq,
 			return true;
 		break;
 	case CMD_W:
-		ret = fg_write_block(bq, cmd->reg,
+		return fg_update_bqfs_write_block(bq, cmd->reg,
 					(u8 *)&cmd->data.bytes,
 					cmd->data_len);
-		if (ret < 0)
-			return false;
-		else
-			return true;
-		break;
 	case CMD_C:
 		if (fg_read_block(bq, cmd->reg, tmp_buf, cmd->data_len) < 0)
 			return false;
