@@ -1,0 +1,6 @@
+config CHARGER_BQ24725
+	tristate "TI BQ24725 battery charger driver"
+	depends on I2C
+	default y
+	help
+	  Say Y to enable support for TI bq24725 charger

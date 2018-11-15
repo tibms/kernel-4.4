@@ -522,6 +522,7 @@ source "drivers/power/bq2588x/Kconfig"
 source "drivers/power/bq28z610/Kconfig"
 source "drivers/power/bq34z100/Kconfig"
 source "drivers/power/bq2560x/Kconfig"
+source "drivers/power/bq24725a/Kconfig"
 
 endif # POWER_SUPPLY
 
