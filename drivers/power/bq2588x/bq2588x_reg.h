@@ -140,6 +140,7 @@
 #define BQ2588X_ICO_ILIM_LSB                      100
 
 #define BQ2588X_REG_CHG_STATUS1                   0x0B
+#define BQ2588X_ADC_DONE_STAT_MASK                0x80
 #define BQ2588X_IINDPM_STAT_MASK                  0x40
 #define BQ2588X_IINDPM_STAT_SHIFT                 6
 #define BQ2588X_IINDPM_STAT_INACTIVE              0

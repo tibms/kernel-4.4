@@ -852,7 +852,7 @@ static int bq2588x_wait_adc_scan_done(struct bq2588x *bq)
 	bool done = false;
 	int retry = 0;
 
-	while(retry++ < 20)
+	while (retry++ < 20) {
 		ret = bq2588x_check_adc_scan_done(bq, &done);
 		if (!ret && done)
 			return 1;
