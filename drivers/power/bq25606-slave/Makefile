@@ -1,0 +1,1 @@
+obj-$(CONFIG_CHARGER_BQ25606_SLAVE)	+= bq25606_charger.o
