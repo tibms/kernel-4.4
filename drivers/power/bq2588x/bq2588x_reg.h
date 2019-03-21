@@ -424,7 +424,7 @@
 #define BQ2588X_IBUS_ADC_LB_MASK                  0xFF
 #define BQ2588X_IBUS_ADC_LB_SHIFT                 0
 #define BQ2588X_IBUS_ADC_LB_BASE                  0
-#define BQ2588X_IBUS_ADC_LB_LSB                   256
+#define BQ2588X_IBUS_ADC_LB_LSB                   1
 
 #define BQ2588X_REG_ICHG_ADC_1                    0x19
 #define BQ2588X_ICHG_ADC_HB_MASK                  0xFF
@@ -436,7 +436,7 @@
 #define BQ2588X_ICHG_ADC_LB_MASK                  0xFF
 #define BQ2588X_ICHG_ADC_LB_SHIFT                 0
 #define BQ2588X_ICHG_ADC_LB_BASE                  0
-#define BQ2588X_ICHG_ADC_LB_LSB                   256
+#define BQ2588X_ICHG_ADC_LB_LSB                   1
 
 #define BQ2588X_REG_VBUS_ADC_1                    0x1B
 #define BQ2588X_VBUS_ADC_HB_MASK                  0xFF
@@ -448,7 +448,7 @@
 #define BQ2588X_VBUS_ADC_LB_MASK                  0xFF
 #define BQ2588X_VBUS_ADC_LB_SHIFT                 0
 #define BQ2588X_VBUS_ADC_LB_BASE                  0
-#define BQ2588X_VBUS_ADC_LB_LSB                   256
+#define BQ2588X_VBUS_ADC_LB_LSB                   1
 
 #define BQ2588X_REG_VBAT_ADC_1                    0x1D
 #define BQ2588X_VBAT_ADC_HB_MASK                  0xFF
@@ -460,7 +460,7 @@
 #define BQ2588X_VBAT_ADC_LB_MASK                  0xFF
 #define BQ2588X_VBAT_ADC_LB_SHIFT                 0
 #define BQ2588X_VBAT_ADC_LB_BASE                  0
-#define BQ2588X_VBAT_ADC_LB_LSB                   256
+#define BQ2588X_VBAT_ADC_LB_LSB                   1
 
 #define BQ2588X_REG_VSYS_ADC_1                    0x1F
 #define BQ2588X_VSYS_ADC_HB_MASK                  0xFF
@@ -472,7 +472,7 @@
 #define BQ2588X_VSYS_ADC_LB_MASK                  0xFF
 #define BQ2588X_VSYS_ADC_LB_SHIFT                 0
 #define BQ2588X_VSYS_ADC_LB_BASE                  0
-#define BQ2588X_VSYS_ADC_LB_LSB                   256
+#define BQ2588X_VSYS_ADC_LB_LSB                   1
 
 #define BQ2588X_REG_TS_ADC_1                      0x21
 #define BQ2588X_TS_ADC_HB_MASK                    0xFF
