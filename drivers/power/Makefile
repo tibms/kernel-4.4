@@ -74,7 +74,7 @@ obj-$(CONFIG_AXP288_FUEL_GAUGE) += axp288_fuel_gauge.o
 obj-$(CONFIG_AXP288_CHARGER)	+= axp288_charger.o
 obj-y	+= bq25600-slave/
 obj-y	+= bq25606-slave/
-obj-y	+= bq25910-slave/
+#obj-y	+= bq25910-slave/
 obj-y	+= bq27z860/
 obj-y	+= bq27532/
 obj-y	+= bq27z561/
@@ -85,6 +85,7 @@ obj-y	+= bq40z50/
 #obj-y	+= bq2429x/
 obj-y	+= bq28z610/
 obj-y	+= bq34z100/
-obj-y	+= bq2560x/
+#obj-y	+= bq2560x/
 obj-y	+= bq24725a/
+obj-y	+= bq27426/
 
