@@ -1,0 +1,92 @@
+		bq25970-master@65 {
+			compatible = "ti,bq2597x-master";
+			reg = <0x65>;
+			interrupt-parent = <&tlmm>;
+			interrupts = <1 2>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&bq2597x_int_default>;
+
+		/*	ti,bq2597x,bat-ovp-disable;	*/
+			ti,bq2597x,bat-ovp-alarm-disable;	
+		/*	ti,bq2597x,bat-ocp-disable;	
+			ti,bq2597x,bat-ocp-alarm-disable; */
+			
+		/*	ti,bq2597x,bat-ucp-disable;	*/
+
+		/*	ti,bq2597x,bus-ovp-alarm-disable;	
+			ti,bq2597x,bus-ocp-disable;	
+			ti,bq2597x,bus-ocp-alarm-disable;	
+
+		*/			
+			ti,bq2597x,bat-therm-disable;	
+			ti,bq2597x,bus-therm-disable;	
+			ti,bq2597x,die-therm-disable;	
+
+			ti,bq2597x,bat-ovp-threshold = <4525>;
+			ti,bq2597x,bat-ovp-alarm-threshold = <4400>;
+			ti,bq2597x,bat-ocp-threshold = <8000>;
+			ti,bq2597x,bat-ocp-alarm-threshold = <7500>;
+
+			ti,bq2597x,bus-ovp-threshold = <12000>;
+			ti,bq2597x,bus-ovp-alarm-threshold = <11000>;
+			ti,bq2597x,bus-ocp-threshold = <3750>;
+			ti,bq2597x,bus-ocp-alarm-threshold = <3500>;
+
+			ti,bq2597x,bat-ucp-alarm-threshold = <2000>;
+
+			ti,bq2597x,bat-therm-threshold = <0x15>;/*4.1%*/
+			ti,bq2597x,bus-therm-threshold = <0x15>;/*4.1%*/
+			ti,bq2597x,die-therm-threshold = <125>;
+
+			ti,bq2597x,ac-ovp-threshold = <12>;
+			ti,bq2597x,sense-resistor-mohm = <2>;
+
+		};
+		bq25970-slave@66 {
+			compatible = "ti,bq2597x-slave";
+			reg = <0x66>;
+			/*
+			interrupt-parent = <&tlmm>;
+			interrupts = <1 2>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&bq2597x_int_default>;
+			*/
+
+		/*	ti,bq2597x,bat-ovp-disable;	*/
+			ti,bq2597x,bat-ovp-alarm-disable;	
+		/*	ti,bq2597x,bat-ocp-disable;	
+			ti,bq2597x,bat-ocp-alarm-disable; */
+			
+		/*	ti,bq2597x,bat-ucp-disable;	*/
+
+		/*	ti,bq2597x,bus-ovp-alarm-disable;	
+			ti,bq2597x,bus-ocp-disable;	
+			ti,bq2597x,bus-ocp-alarm-disable;	
+
+		*/			
+			ti,bq2597x,bat-therm-disable;	
+			ti,bq2597x,bus-therm-disable;	
+			ti,bq2597x,die-therm-disable;	
+
+			ti,bq2597x,bat-ovp-threshold = <4525>;
+			ti,bq2597x,bat-ovp-alarm-threshold = <4400>;
+			ti,bq2597x,bat-ocp-threshold = <8000>;
+			ti,bq2597x,bat-ocp-alarm-threshold = <7500>;
+
+			ti,bq2597x,bus-ovp-threshold = <12000>;
+			ti,bq2597x,bus-ovp-alarm-threshold = <11000>;
+			ti,bq2597x,bus-ocp-threshold = <3750>;
+			ti,bq2597x,bus-ocp-alarm-threshold = <3500>;
+
+			ti,bq2597x,bat-ucp-alarm-threshold = <2000>;
+
+			ti,bq2597x,bat-therm-threshold = <0x15>;/*4.1%*/
+			ti,bq2597x,bus-therm-threshold = <0x15>;/*4.1%*/
+			ti,bq2597x,die-therm-threshold = <125>;
+
+			ti,bq2597x,ac-ovp-threshold = <12>;
+			ti,bq2597x,sense-resistor-mohm = <2>;
+
+		};
+
+
