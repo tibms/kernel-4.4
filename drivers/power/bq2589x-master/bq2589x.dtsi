@@ -1,0 +1,22 @@
+        bq25890@6A{
+            compatible = "ti,bq2589x-1";
+            reg = <0x6A>;
+            interrupts = <61 0x2>; */
+            ti,bq2589x,vbus-volt-high-level = <8700>;/* tune adapter to output 9v */
+            ti,bq2589x,vbus-volt-low-level = <4400>;/* tune adapter to output 5v */
+            ti,bq2589x,vbat-min-volt-to-tuneup = <3000>;
+			ti,bq2589x,charge-voltage = <4208>;
+			ti,bq2589x,charge-current = <2000>;
+			ti,bq2589x,term-current = <256>;
+
+			ti,bq2589x,enable-auto-dpdm;
+			ti,bq2589x,enable-termination;
+			ti,bq2589x,enable-ico;
+			ti,bq2589x,use-absolute-vindpm;
+ 
+        };
+
+        bq25892@6B{
+            compatible = "ti,bq2589x-2";
+            reg = <0x6B>;
+      };
