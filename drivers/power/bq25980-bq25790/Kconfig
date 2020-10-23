@@ -1,0 +1,19 @@
+menu "TI Technologies, Inc. Charger support"
+
+config CHARGER_BQ25790
+	tristate "TI BQ25790 battery charger driver"
+	depends on I2C
+	select REGMAP_I2C
+	help
+	  Say Y to enable support for the TI BQ25790 battery charger.
+
+
+config CHARGER_BQ25980
+	tristate "TI BQ25980 battery charger driver"
+	depends on I2C
+	depends on GPIOLIB || COMPILE_TEST
+	select REGMAP_I2C
+	help
+	  Say Y to enable support for the TI BQ25980 battery charger.
+
+endmenu
