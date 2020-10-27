@@ -1,0 +1,48 @@
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/clock/qcom,gcc-kona.h>
+#include <dt-bindings/clock/qcom,camcc-kona.h>
+#include <dt-bindings/clock/qcom,rpmh.h>
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+
+#include "kona-hdk.dtsi"
+
+/ {
+	model = "Qualcomm Technologies, Inc. kona HDK";
+	compatible = "qcom,kona-hdk", "qcom,kona", "qcom,hdk";
+	qcom,board-id = <0x01001F 0x01>;
+};
+
+#include <dt-bindings/interrupt-controller/irq.h>
+
+&qupv3_se1_i2c {
+	status = "ok";
+	qcom,clk-freq-out = <400000>;
+	bat:battery {
+		compatible = "simple-battery";
+		constant_charge_current_max_microamp = <2000000>;
+		constant_charge_voltage_max_microvolt = <8900000>;
+		precharge-current-microamp = <200000>;
+		charge-term-current-microamp = <400000>;
+	};
+	bq25790@6b {
+		compatible = "ti,bq25790";
+		reg = <0x6b>;
+		//interrupt-parent = <&tlmm>;
+		//interrupts = <110 IRQ_TYPE_EDGE_FALLING>;
+		ti,irq-gpio = <&tlmm 110 0>;													
+		monitored-battery = <&bat>;
+		input-current-limit-microamp = <3000000>;
+	};
+	
+	bq25980@65 {
+		compatible = "ti,bq25980";
+		reg = <0x65>;
+		//interrupt-parent = <&tlmm>;
+		//interrupts = <111 0>;
+		ti,irq-gpio = <&tlmm 111 0>;													
+		monitored-battery = <&bat>;
+	};
+};
+
