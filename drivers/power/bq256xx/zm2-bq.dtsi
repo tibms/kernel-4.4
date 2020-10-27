@@ -1,0 +1,20 @@
+&i2c_7 {
+	status = "okay";
+	bq25611d@6b {
+		compatible = "ti,bq25611d";
+		reg = <0x6b>;
+
+		#address-cells = <1>;
+		#size-cells = <0>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <42 2>;
+		bq-gpio = <&tlmm 24 0>;
+
+		input-voltage-limit-microvolt = <4500000>;
+		input-current-limit-microamp = <2400000>;
+		constant-charge-current-max-microamp = <2040000>;
+		constant-charge-voltage-max-microvolt = <4352000>;
+		precharge-current-microamp = <180000>;
+		termination-current-microamp = <180000>;
+	};
+};
