@@ -1,4 +1,5 @@
 		bq25970-master@65 {
+			//compatible = "ti,bq2597x-standalone";
 			compatible = "ti,bq2597x-master";
 			reg = <0x65>;
 			interrupt-parent = <&tlmm>;
@@ -8,7 +9,8 @@
 
 		/*	ti,bq2597x,bat-ovp-disable;	*/
 			ti,bq2597x,bat-ovp-alarm-disable;	
-		/*	ti,bq2597x,bat-ocp-disable;	
+		/*	uncomment for dual cp
+			ti,bq2597x,bat-ocp-disable;	
 			ti,bq2597x,bat-ocp-alarm-disable; */
 			
 		/*	ti,bq2597x,bat-ucp-disable;	*/
@@ -54,7 +56,8 @@
 
 		/*	ti,bq2597x,bat-ovp-disable;	*/
 			ti,bq2597x,bat-ovp-alarm-disable;	
-		/*	ti,bq2597x,bat-ocp-disable;	
+		/*	uncomment for dual cp
+			ti,bq2597x,bat-ocp-disable;	
 			ti,bq2597x,bat-ocp-alarm-disable; */
 			
 		/*	ti,bq2597x,bat-ucp-disable;	*/

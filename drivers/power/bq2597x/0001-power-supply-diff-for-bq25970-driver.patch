@@ -1,0 +1,62 @@
+From cd191b4479ea2035fd0a9b9d8e1fe2d32f03de98 Mon Sep 17 00:00:00 2001
+From: Duan Honghui <duanhh0103@thundersoft.com>
+Date: Wed, 16 Dec 2020 12:22:08 +0800
+Subject: [PATCH] power supply diff for bq25970 driver.
+
+Change-Id: I9fd1e6aacc8e297f7b582a4e961b5ac0a6a9c5df
+---
+ drivers/power/supply/power_supply_sysfs.c | 13 +++++++++++++
+ include/linux/power_supply.h              | 13 +++++++++++++
+ 2 files changed, 26 insertions(+)
+
+diff --git a/drivers/power/supply/power_supply_sysfs.c b/drivers/power/supply/power_supply_sysfs.c
+index 461486b..efc6432 100755
+--- a/drivers/power/supply/power_supply_sysfs.c
++++ b/drivers/power/supply/power_supply_sysfs.c
+@@ -322,6 +322,19 @@ static struct device_attribute power_supply_attrs[] = {
+ 	POWER_SUPPLY_ATTR(input_voltage_limit),
+ 	POWER_SUPPLY_ATTR(ti_adc),
+ 	POWER_SUPPLY_ATTR(ti_bypass),
++	POWER_SUPPLY_ATTR(ti_battery_present),
++	POWER_SUPPLY_ATTR(ti_vbus_present),
++	POWER_SUPPLY_ATTR(ti_battery_voltage),
++	POWER_SUPPLY_ATTR(ti_battery_current),
++	POWER_SUPPLY_ATTR(ti_battery_temperature),
++	POWER_SUPPLY_ATTR(ti_bus_voltage),
++	POWER_SUPPLY_ATTR(ti_bus_current),
++	POWER_SUPPLY_ATTR(ti_bus_temperature),
++	POWER_SUPPLY_ATTR(ti_die_temperature),
++	POWER_SUPPLY_ATTR(ti_alarm_status),
++	POWER_SUPPLY_ATTR(ti_fault_status),
++	POWER_SUPPLY_ATTR(ti_reg_status),
++	POWER_SUPPLY_ATTR(ti_set_bus_protection_for_qc3),
+ 	POWER_SUPPLY_ATTR(energy_full_design),
+ 	POWER_SUPPLY_ATTR(energy_empty_design),
+ 	POWER_SUPPLY_ATTR(energy_full),
+diff --git a/include/linux/power_supply.h b/include/linux/power_supply.h
+index 8426be0..4cd7616 100755
+--- a/include/linux/power_supply.h
++++ b/include/linux/power_supply.h
+@@ -203,6 +203,19 @@ enum power_supply_property {
+ 	POWER_SUPPLY_PROP_INPUT_VOLTAGE_LIMIT,
+ 	POWER_SUPPLY_PROP_TI_ADC,
+ 	POWER_SUPPLY_PROP_TI_BYPASS,
++	POWER_SUPPLY_PROP_TI_BATTERY_PRESENT,
++	POWER_SUPPLY_PROP_TI_VBUS_PRESENT,
++	POWER_SUPPLY_PROP_TI_BATTERY_VOLTAGE,
++	POWER_SUPPLY_PROP_TI_BATTERY_CURRENT,
++	POWER_SUPPLY_PROP_TI_BATTERY_TEMPERATURE,
++	POWER_SUPPLY_PROP_TI_BUS_VOLTAGE,
++	POWER_SUPPLY_PROP_TI_BUS_CURRENT,
++	POWER_SUPPLY_PROP_TI_BUS_TEMPERATURE,
++	POWER_SUPPLY_PROP_TI_DIE_TEMPERATURE,
++	POWER_SUPPLY_PROP_TI_ALARM_STATUS,
++	POWER_SUPPLY_PROP_TI_FAULT_STATUS,
++	POWER_SUPPLY_PROP_TI_REG_STATUS,
++	POWER_SUPPLY_PROP_TI_SET_BUS_PROTECTION_FOR_QC3,
+ 	POWER_SUPPLY_PROP_ENERGY_FULL_DESIGN,
+ 	POWER_SUPPLY_PROP_ENERGY_EMPTY_DESIGN,
+ 	POWER_SUPPLY_PROP_ENERGY_FULL,
+-- 
+2.7.4
+
