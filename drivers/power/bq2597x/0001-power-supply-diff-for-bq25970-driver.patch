@@ -1,22 +1,27 @@
-From cd191b4479ea2035fd0a9b9d8e1fe2d32f03de98 Mon Sep 17 00:00:00 2001
+From a029ec8239272917378fe897703ca2d93a24735d Mon Sep 17 00:00:00 2001
 From: Duan Honghui <duanhh0103@thundersoft.com>
-Date: Wed, 16 Dec 2020 12:22:08 +0800
+Date: Wed, 16 Dec 2020 14:46:58 +0800
 Subject: [PATCH] power supply diff for bq25970 driver.
 
 Change-Id: I9fd1e6aacc8e297f7b582a4e961b5ac0a6a9c5df
 ---
- drivers/power/supply/power_supply_sysfs.c | 13 +++++++++++++
- include/linux/power_supply.h              | 13 +++++++++++++
- 2 files changed, 26 insertions(+)
+ drivers/power/supply/power_supply_sysfs.c | 14 ++++++++++++++
+ include/linux/power_supply.h              | 14 ++++++++++++++
+ 2 files changed, 28 insertions(+)
+ mode change 100644 => 100755 drivers/power/supply/power_supply_sysfs.c
+ mode change 100644 => 100755 include/linux/power_supply.h
 
 diff --git a/drivers/power/supply/power_supply_sysfs.c b/drivers/power/supply/power_supply_sysfs.c
-index 461486b..efc6432 100755
+old mode 100644
+new mode 100755
+index b9e064a..d8e879d
 --- a/drivers/power/supply/power_supply_sysfs.c
 +++ b/drivers/power/supply/power_supply_sysfs.c
-@@ -322,6 +322,19 @@ static struct device_attribute power_supply_attrs[] = {
- 	POWER_SUPPLY_ATTR(input_voltage_limit),
- 	POWER_SUPPLY_ATTR(ti_adc),
- 	POWER_SUPPLY_ATTR(ti_bypass),
+@@ -318,6 +318,20 @@ static struct device_attribute power_supply_attrs[] = {
+ 	POWER_SUPPLY_ATTR(charge_control_limit),
+ 	POWER_SUPPLY_ATTR(charge_control_limit_max),
+ 	POWER_SUPPLY_ATTR(input_current_limit),
++	POWER_SUPPLY_ATTR(ti_adc),
 +	POWER_SUPPLY_ATTR(ti_battery_present),
 +	POWER_SUPPLY_ATTR(ti_vbus_present),
 +	POWER_SUPPLY_ATTR(ti_battery_voltage),
@@ -34,13 +39,16 @@ index 461486b..efc6432 100755
  	POWER_SUPPLY_ATTR(energy_empty_design),
  	POWER_SUPPLY_ATTR(energy_full),
 diff --git a/include/linux/power_supply.h b/include/linux/power_supply.h
-index 8426be0..4cd7616 100755
+old mode 100644
+new mode 100755
+index df38e9a..d1431d1
 --- a/include/linux/power_supply.h
 +++ b/include/linux/power_supply.h
-@@ -203,6 +203,19 @@ enum power_supply_property {
- 	POWER_SUPPLY_PROP_INPUT_VOLTAGE_LIMIT,
- 	POWER_SUPPLY_PROP_TI_ADC,
- 	POWER_SUPPLY_PROP_TI_BYPASS,
+@@ -198,6 +198,20 @@ enum power_supply_property {
+ 	POWER_SUPPLY_PROP_CHARGE_CONTROL_LIMIT,
+ 	POWER_SUPPLY_PROP_CHARGE_CONTROL_LIMIT_MAX,
+ 	POWER_SUPPLY_PROP_INPUT_CURRENT_LIMIT,
++	POWER_SUPPLY_PROP_TI_ADC,
 +	POWER_SUPPLY_PROP_TI_BATTERY_PRESENT,
 +	POWER_SUPPLY_PROP_TI_VBUS_PRESENT,
 +	POWER_SUPPLY_PROP_TI_BATTERY_VOLTAGE,
