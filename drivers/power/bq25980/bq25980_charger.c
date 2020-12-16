@@ -39,7 +39,9 @@ struct bq25980_state {
 };
 
 enum bq25980_id {
-	BQ25980,
+	BQ25980_STANDALONE,
+	BQ25980_MASTER,
+	BQ25980_SLAVE,
 	BQ25975,
 	BQ25960,
 };
@@ -108,38 +110,39 @@ struct bq25980_device {
 	const struct bq25980_chip_info *chip_info;
 	struct bq25980_state state;
 	int watchdog_timer;
+	int mode;
+	struct power_supply_desc psy_desc;
 };
 
 static struct reg_default bq25980_reg_init_val[] = {
-	{BQ25980_BATOVP,		0x69},
+	{BQ25980_BATOVP,	0x69},
 	{BQ25980_BATOVP_ALM,	0x61},
-	{BQ25980_BATOCP,		0x64},
-	{BQ25980_BATOCP_ALM,	0x41},
+	{BQ25980_BATOCP,	0xFF},//0x64 for standalone
+	{BQ25980_BATOCP_ALM,	0x7F},
 	{BQ25980_BATUCP_ALM,	0x28},
 	{BQ25980_CHRGR_CTRL_1,	0x4A},
-	{BQ25980_BUSOVP,		0x3C},
+	{BQ25980_BUSOVP,	0x3C},
 	{BQ25980_BUSOVP_ALM,	0x32},
-	{BQ25980_BUSOCP,		0x13},
+	{BQ25980_BUSOCP,	0x13},
 	{BQ25980_BUSOCP_ALM,	0x0D},
 	{BQ25980_TEMP_CONTROL,	0x2C},
-	{BQ25980_TDIE_ALM,		0x78},
-	{BQ25980_TSBUS_FLT,		0x15},
-	{BQ25980_TSBAT_FLG,		0x15},
+	{BQ25980_TDIE_ALM,	0x78},
+	{BQ25980_TSBUS_FLT,	0x15},
+	{BQ25980_TSBAT_FLG,	0x15},
 	{BQ25980_VAC_CONTROL,	0xD8},
 	{BQ25980_CHRGR_CTRL_2,	0x00},
 	{BQ25980_CHRGR_CTRL_3,	0x64},
 	{BQ25980_CHRGR_CTRL_4,	0x01},
 	{BQ25980_CHRGR_CTRL_5,	0x18},
 
-	{BQ25980_MASK1,			0x00},
-	{BQ25980_MASK2,			0x00},
-	{BQ25980_MASK3,			0x00},
-	{BQ25980_MASK4,			0x00},
-	{BQ25980_MASK5,			0x80},
-	{BQ25980_DEVICE_INFO,	0x08},
+	{BQ25980_MASK1,		0x00},
+	{BQ25980_MASK2,		0x00},
+	{BQ25980_MASK3,		0x00},
+	{BQ25980_MASK4,		0x00},
+	{BQ25980_MASK5,		0x80},
+
 	{BQ25980_ADC_CONTROL1,	0x04},//sample 14 bit
 	{BQ25980_ADC_CONTROL2,	0xE6},
-
 };
 
 static struct reg_default bq25980_reg_defs[] = {
@@ -1028,16 +1031,6 @@ static int bq25980_property_is_writeable(struct power_supply *psy,
 	}
 }
 
-static const struct power_supply_desc bq25980_power_supply_desc = {
-	.name = "bq25980-charger",
-	.type = POWER_SUPPLY_TYPE_MAINS,
-	.properties = bq25980_power_supply_props,
-	.num_properties = ARRAY_SIZE(bq25980_power_supply_props),
-	.get_property = bq25980_get_charger_property,
-	.set_property = bq25980_set_charger_property,
-	.property_is_writeable = bq25980_property_is_writeable,
-};
-
 static struct power_supply_desc bq25980_battery_desc = {
 	.name			= "bq25980-battery",
 	.type			= POWER_SUPPLY_TYPE_BATTERY,
@@ -1095,8 +1088,8 @@ static const struct regmap_config bq25960_regmap_config = {
 };
 
 static const struct bq25980_chip_info bq25980_chip_info_tbl[] = {
-	[BQ25980] = {
-		.model_id = BQ25980,
+	[BQ25980_STANDALONE] = {
+		.model_id = BQ25980_STANDALONE,
 		.regmap_config = &bq25980_regmap_config,
 
 		.busocp_def = BQ25980_BUSOCP_DFLT_uA,
@@ -1122,6 +1115,68 @@ static const struct bq25980_chip_info bq25980_chip_info_tbl[] = {
 		.batovp_step = BQ25980_BATOVP_STEP_uV,
 		.batovp_offset = BQ25980_BATOVP_OFFSET_uV,
 
+		.batocp_def = BQ25980_BATOCP_DFLT_uA,
+		.batocp_max = BQ25980_BATOCP_MAX_uA,
+	},
+
+	[BQ25980_MASTER] = {
+		.model_id = BQ25980_MASTER,
+		.regmap_config = &bq25980_regmap_config,
+	
+		.busocp_def = BQ25980_BUSOCP_DFLT_uA,
+		.busocp_sc_min = BQ25960_BUSOCP_SC_MAX_uA,
+		.busocp_sc_max = BQ25980_BUSOCP_SC_MAX_uA,
+		.busocp_byp_max = BQ25980_BUSOCP_BYP_MAX_uA,
+		.busocp_byp_min = BQ25980_BUSOCP_MIN_uA,
+	
+		.busovp_sc_def = BQ25980_BUSOVP_DFLT_uV,
+		.busovp_byp_def = BQ25980_BUSOVP_BYPASS_DFLT_uV,
+		.busovp_sc_step = BQ25980_BUSOVP_SC_STEP_uV,
+		.busovp_sc_offset = BQ25980_BUSOVP_SC_OFFSET_uV,
+		.busovp_byp_step = BQ25980_BUSOVP_BYP_STEP_uV,
+		.busovp_byp_offset = BQ25980_BUSOVP_BYP_OFFSET_uV,
+		.busovp_sc_min = BQ25980_BUSOVP_SC_MIN_uV,
+		.busovp_sc_max = BQ25980_BUSOVP_SC_MAX_uV,
+		.busovp_byp_min = BQ25980_BUSOVP_BYP_MIN_uV,
+		.busovp_byp_max = BQ25980_BUSOVP_BYP_MAX_uV,
+	
+		.batovp_def = BQ25980_BATOVP_DFLT_uV,
+		.batovp_max = BQ25980_BATOVP_MAX_uV,
+		.batovp_min = BQ25980_BATOVP_MIN_uV,
+		.batovp_step = BQ25980_BATOVP_STEP_uV,
+		.batovp_offset = BQ25980_BATOVP_OFFSET_uV,
+	
+		.batocp_def = BQ25980_BATOCP_DFLT_uA,
+		.batocp_max = BQ25980_BATOCP_MAX_uA,
+	},
+
+	[BQ25980_SLAVE] = {
+		.model_id = BQ25980_SLAVE,
+		.regmap_config = &bq25980_regmap_config,
+	
+		.busocp_def = BQ25980_BUSOCP_DFLT_uA,
+		.busocp_sc_min = BQ25960_BUSOCP_SC_MAX_uA,
+		.busocp_sc_max = BQ25980_BUSOCP_SC_MAX_uA,
+		.busocp_byp_max = BQ25980_BUSOCP_BYP_MAX_uA,
+		.busocp_byp_min = BQ25980_BUSOCP_MIN_uA,
+	
+		.busovp_sc_def = BQ25980_BUSOVP_DFLT_uV,
+		.busovp_byp_def = BQ25980_BUSOVP_BYPASS_DFLT_uV,
+		.busovp_sc_step = BQ25980_BUSOVP_SC_STEP_uV,
+		.busovp_sc_offset = BQ25980_BUSOVP_SC_OFFSET_uV,
+		.busovp_byp_step = BQ25980_BUSOVP_BYP_STEP_uV,
+		.busovp_byp_offset = BQ25980_BUSOVP_BYP_OFFSET_uV,
+		.busovp_sc_min = BQ25980_BUSOVP_SC_MIN_uV,
+		.busovp_sc_max = BQ25980_BUSOVP_SC_MAX_uV,
+		.busovp_byp_min = BQ25980_BUSOVP_BYP_MIN_uV,
+		.busovp_byp_max = BQ25980_BUSOVP_BYP_MAX_uV,
+	
+		.batovp_def = BQ25980_BATOVP_DFLT_uV,
+		.batovp_max = BQ25980_BATOVP_MAX_uV,
+		.batovp_min = BQ25980_BATOVP_MIN_uV,
+		.batovp_step = BQ25980_BATOVP_STEP_uV,
+		.batovp_offset = BQ25980_BATOVP_OFFSET_uV,
+	
 		.batocp_def = BQ25980_BATOCP_DFLT_uA,
 		.batocp_max = BQ25980_BATOCP_MAX_uA,
 	},
@@ -1198,18 +1253,34 @@ static int bq25980_power_supply_init(struct bq25980_device *bq,
 	psy_cfg.supplied_to = bq25980_charger_supplied_to;
 	psy_cfg.num_supplicants = ARRAY_SIZE(bq25980_charger_supplied_to);
 
+	if (bq->mode == BQ25980_MASTER)
+		bq->psy_desc.name = "bq25980-master";
+	else if (bq->mode == BQ25980_SLAVE)
+		bq->psy_desc.name = "bq25980-slave";
+	else
+		bq->psy_desc.name = "bq25980-standalone";
+
+	bq->psy_desc.type = POWER_SUPPLY_TYPE_MAINS,
+	bq->psy_desc.properties = bq25980_power_supply_props,
+	bq->psy_desc.num_properties = ARRAY_SIZE(bq25980_power_supply_props),
+	bq->psy_desc.get_property = bq25980_get_charger_property,
+	bq->psy_desc.set_property = bq25980_set_charger_property,
+	bq->psy_desc.property_is_writeable = bq25980_property_is_writeable,
+
 	bq->charger = devm_power_supply_register(bq->dev,
-						 &bq25980_power_supply_desc,
+						 &bq->psy_desc,
 						 &psy_cfg);
 	if (IS_ERR(bq->charger))
 		return -EINVAL;
 
-	bq->battery = devm_power_supply_register(bq->dev,
+	if (bq->mode != BQ25980_SLAVE) {
+		bq->battery = devm_power_supply_register(bq->dev,
 						      &bq25980_battery_desc,
 						      &psy_cfg);
-	if (IS_ERR(bq->battery))
-		return -EINVAL;
-
+		if (IS_ERR(bq->battery))
+			return -EINVAL;
+	}
+	
 	return 0;
 }
 
@@ -1358,6 +1429,30 @@ static int bq25980_parse_dt(struct bq25980_device *bq)
 	return 0;
 }
 
+static int bq25980_get_work_mode(struct bq25980_device *bq, int *mode)
+{
+	int ret;
+	int val;
+
+	ret = regmap_read(bq->regmap, BQ25980_CHRGR_CTRL_5, &val);
+	if (ret) {
+		dev_err(bq->dev, "Failed to read operation mode register\n");
+		return ret;
+	}
+
+	val = (val & BQ25980_MS_MASK);
+	if (val == 2)
+		*mode = BQ25980_MASTER;
+	else if (val == 1)
+		*mode = BQ25980_SLAVE;
+	else
+		*mode = BQ25980_STANDALONE;
+
+	dev_info(bq->dev, "work mode:%s\n", *mode == BQ25980_STANDALONE ? "Standalone" :
+			(*mode == BQ25980_SLAVE ? "Slave" : "Master"));
+	return ret;
+}
+
 static int bq25980_probe(struct i2c_client *client,
 			 const struct i2c_device_id *id)
 {
@@ -1385,6 +1480,13 @@ static int bq25980_probe(struct i2c_client *client,
 	}
 
 	i2c_set_clientdata(client, bq);
+
+	bq25980_get_work_mode(bq, &bq->mode);
+
+	if (bq->mode != id->driver_data) {
+		dev_err(dev, "device operation mode mismatch with dts configuration\n");
+		return -EINVAL;
+	}
 
 	ret = bq25980_parse_dt(bq);
 	if (ret) {
@@ -1441,7 +1543,9 @@ static int bq25980_probe(struct i2c_client *client,
 }
 
 static const struct i2c_device_id bq25980_i2c_ids[] = {
-	{ "bq25980", BQ25980 },
+	{ "bq25980-standalone", BQ25980_STANDALONE },
+	{ "bq25980-master", BQ25980_MASTER },
+	{ "bq25980-slave", BQ25980_SLAVE },
 	{ "bq25975", BQ25975 },
 	{ "bq25975", BQ25975 },
 	{},
@@ -1449,7 +1553,9 @@ static const struct i2c_device_id bq25980_i2c_ids[] = {
 MODULE_DEVICE_TABLE(i2c, bq25980_i2c_ids);
 
 static const struct of_device_id bq25980_of_match[] = {
-	{ .compatible = "ti,bq25980", .data = (void *)BQ25980 },
+	{ .compatible = "ti,bq25980-standalone", .data = (void *)BQ25980_STANDALONE},
+	{ .compatible = "ti,bq25980-master", .data = (void *)BQ25980_MASTER},
+	{ .compatible = "ti,bq25980-slave", .data = (void *)BQ25980_SLAVE},
 	{ .compatible = "ti,bq25975", .data = (void *)BQ25975 },
 	{ .compatible = "ti,bq25960", .data = (void *)BQ25960 },
 	{ },

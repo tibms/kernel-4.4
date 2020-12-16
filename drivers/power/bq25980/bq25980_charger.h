@@ -164,6 +164,7 @@
 #define BQ25980_CHG_EN			BIT(4)
 #define BQ25980_EN_HIZ			BIT(6)
 #define BQ25980_ADC_EN			BIT(7)
+#define BQ25980_MS_MASK			GENMASK(1, 0)
 
 #define BQ25980_ADC_CURR_STEP_IBUS_uA        1070
 #define BQ25980_ADC_VOLT_STEP_VBAT_deciuV        10055
