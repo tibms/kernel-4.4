@@ -1139,7 +1139,7 @@ static int bq25790_probe(struct i2c_client *client,
 		usb_register_notifier(bq->usb3_phy, &bq->usb_nb);
 	}
 
-#ifndef CONFIG_INTERRUPTS_IN_DTS
+#ifdef CONFIG_INTERRUPT_AS_GPIO
 	irq_gpio = of_get_named_gpio(client->dev.of_node, "ti,irq-gpio", 0);
 	if (!gpio_is_valid(irq_gpio))
 	{

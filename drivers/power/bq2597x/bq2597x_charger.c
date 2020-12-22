@@ -2175,7 +2175,7 @@ static int bq2597x_charger_probe(struct i2c_client *client,
 	if (ret)
 		return -EIO;
 
-#ifndef CONFIG_INTERRUPTS_IN_DTS
+#ifdef CONFIG_INTERRUPT_AS_GPIO
 		irq_gpio = of_get_named_gpio(client->dev.of_node, "ti,irq-gpio", 0);
 		if (!gpio_is_valid(irq_gpio))
 		{

@@ -1,0 +1,80 @@
+From 2be21cdeef159d010e58b5561716b2e5b0e69315 Mon Sep 17 00:00:00 2001
+From: Duan Honghui <duanhh0103@thundersoft.com>
+Date: Wed, 16 Dec 2020 14:46:58 +0800
+Subject: [PATCH] power supply diff for bq25980 driver
+
+Change-Id: I62c96012b3e85764f285665f9354359f2f00e7df
+---
+ drivers/power/supply/power_supply_sysfs.c | 6 +++++-
+ include/linux/power_supply.h              | 5 +++++
+ 2 files changed, 10 insertions(+), 1 deletion(-)
+ mode change 100644 => 100755 drivers/power/supply/power_supply_sysfs.c
+ mode change 100644 => 100755 include/linux/power_supply.h
+
+diff --git a/drivers/power/supply/power_supply_sysfs.c b/drivers/power/supply/power_supply_sysfs.c
+old mode 100644
+new mode 100755
+index b9e064a..461486b
+--- a/drivers/power/supply/power_supply_sysfs.c
++++ b/drivers/power/supply/power_supply_sysfs.c
+@@ -59,13 +59,14 @@ static const char * const power_supply_status_text[] = {
+ };
+ 
+ static const char * const power_supply_charge_type_text[] = {
+-	"Unknown", "N/A", "Trickle", "Fast", "Taper"
++	"Unknown", "N/A", "Trickle", "Fast", "Taper", "Standard"
+ };
+ 
+ static const char * const power_supply_health_text[] = {
+ 	"Unknown", "Good", "Overheat", "Dead", "Over voltage",
+ 	"Unspecified failure", "Cold", "Watchdog timer expire",
+ 	"Safety timer expire",
++	"Over current",
+ 	"Warm", "Cool", "Hot"
+ };
+ 
+@@ -318,6 +319,9 @@ static struct device_attribute power_supply_attrs[] = {
+ 	POWER_SUPPLY_ATTR(charge_control_limit),
+ 	POWER_SUPPLY_ATTR(charge_control_limit_max),
+ 	POWER_SUPPLY_ATTR(input_current_limit),
++	POWER_SUPPLY_ATTR(input_voltage_limit),
++	POWER_SUPPLY_ATTR(ti_adc),
++	POWER_SUPPLY_ATTR(ti_bypass),
+ 	POWER_SUPPLY_ATTR(energy_full_design),
+ 	POWER_SUPPLY_ATTR(energy_empty_design),
+ 	POWER_SUPPLY_ATTR(energy_full),
+diff --git a/include/linux/power_supply.h b/include/linux/power_supply.h
+old mode 100644
+new mode 100755
+index df38e9a..8426be0
+--- a/include/linux/power_supply.h
++++ b/include/linux/power_supply.h
+@@ -47,6 +47,7 @@ enum {
+ 	POWER_SUPPLY_CHARGE_TYPE_TRICKLE,
+ 	POWER_SUPPLY_CHARGE_TYPE_FAST,
+ 	POWER_SUPPLY_CHARGE_TYPE_TAPER,
++	POWER_SUPPLY_CHARGE_TYPE_STANDARD,	/* normal speed */
+ };
+ 
+ enum {
+@@ -59,6 +60,7 @@ enum {
+ 	POWER_SUPPLY_HEALTH_COLD,
+ 	POWER_SUPPLY_HEALTH_WATCHDOG_TIMER_EXPIRE,
+ 	POWER_SUPPLY_HEALTH_SAFETY_TIMER_EXPIRE,
++	POWER_SUPPLY_HEALTH_OVERCURRENT,
+ 	POWER_SUPPLY_HEALTH_WARM,
+ 	POWER_SUPPLY_HEALTH_COOL,
+ 	POWER_SUPPLY_HEALTH_HOT,
+@@ -198,6 +200,9 @@ enum power_supply_property {
+ 	POWER_SUPPLY_PROP_CHARGE_CONTROL_LIMIT,
+ 	POWER_SUPPLY_PROP_CHARGE_CONTROL_LIMIT_MAX,
+ 	POWER_SUPPLY_PROP_INPUT_CURRENT_LIMIT,
++	POWER_SUPPLY_PROP_INPUT_VOLTAGE_LIMIT,
++	POWER_SUPPLY_PROP_TI_ADC,
++	POWER_SUPPLY_PROP_TI_BYPASS,
+ 	POWER_SUPPLY_PROP_ENERGY_FULL_DESIGN,
+ 	POWER_SUPPLY_PROP_ENERGY_EMPTY_DESIGN,
+ 	POWER_SUPPLY_PROP_ENERGY_FULL,
+-- 
+2.7.4
+
