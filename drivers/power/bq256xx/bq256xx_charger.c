@@ -20,6 +20,9 @@
 #include <linux/slab.h>
 #include <linux/acpi.h>
 #include <linux/of.h>
+#include <linux/gpio.h>
+#include <linux/of_gpio.h>
+
 
 #define BQ256XX_MANUFACTURER "Texas Instruments"
 
@@ -111,12 +114,14 @@
 #define BQ25618_ICHG_THRESH		0x3c
 #define BQ25618_ICHG_THRESH_uA		1180000
 
+#define BQ256XX_HIZ_MASK		BIT(7)
 #define BQ256XX_VBUS_STAT_MASK		GENMASK(7, 5)
 #define BQ256XX_VBUS_STAT_NO_INPUT	0
 #define BQ256XX_VBUS_STAT_USB_SDP	BIT(5)
 #define BQ256XX_VBUS_STAT_USB_CDP	BIT(6)
 #define BQ256XX_VBUS_STAT_USB_DCP	(BIT(6) | BIT(5))
 #define BQ256XX_VBUS_STAT_USB_OTG	(BIT(7) | BIT(6) | BIT(5))
+#define BQ256XX_VBUS_STAT_USB_UNKNOWN	(BIT(7) | BIT(5))
 
 #define BQ256XX_CHRG_STAT_MASK		GENMASK(4, 3)
 #define BQ256XX_CHRG_STAT_NOT_CHRGING	0
@@ -878,6 +883,27 @@ static int bq256xx_set_input_curr_lim(struct bq256xx_device *bq, int iindpm)
 					BQ256XX_IINDPM_MASK, iindpm_reg_code);
 }
 
+static int bq256xx_set_hiz_en(struct bq256xx_device *bq, bool hiz_en)
+{
+	int reg_val;
+
+	reg_val = hiz_en ? BQ256XX_HIZ_MASK : 0;
+
+	return regmap_update_bits(bq->regmap, BQ256XX_INPUT_CURRENT_LIMIT,
+				  BQ256XX_HIZ_MASK, reg_val);
+}
+
+static bool bq256xx_get_hiz_en(struct bq256xx_device *bq)
+{
+	int reg_val, ret;
+
+	ret = regmap_read(bq->regmap, BQ256XX_INPUT_CURRENT_LIMIT,
+						&reg_val);
+	if (ret)
+		return ret;
+
+	return reg_val & BQ256XX_HIZ_MASK;
+}
 
 static int bq256xx_set_battery_property(struct power_supply *psy,
 		enum power_supply_property prop,
@@ -915,7 +941,7 @@ static int bq256xx_set_battery_property(struct power_supply *psy,
 		return -EINVAL;
 	}
 
-	return ret;
+	return 0;
 }
 
 static int bq256xx_set_charger_property(struct power_supply *psy,
@@ -941,11 +967,17 @@ static int bq256xx_set_charger_property(struct power_supply *psy,
 			return ret;
 		break;
 
+	case POWER_SUPPLY_PROP_CHARGING_ENABLED:
+		ret = bq256xx_set_hiz_en(bq, !val->intval);
+		if (ret)
+			return ret;
+		break;
+
 	default:
 		return -EINVAL;
 	}
 
-	return ret;
+	return 0;
 }
 
 
@@ -1014,7 +1046,7 @@ static int bq256xx_get_battery_property(struct power_supply *psy,
 		return -EINVAL;
 	}
 
-	return ret;
+	return 0;
 }
 
 static int bq256xx_get_charger_property(struct power_supply *psy,
@@ -1167,11 +1199,18 @@ static int bq256xx_get_charger_property(struct power_supply *psy,
 		val->intval = ret;
 		break;
 
+	case POWER_SUPPLY_PROP_CHARGING_ENABLED:
+		ret = bq256xx_get_hiz_en(bq);
+		if (ret < 0)
+			return ret;
+		val->intval = !ret;
+		break;
+
 	default:
 		return -EINVAL;
 	}
 
-	return ret;
+	return 0;
 }
 
 static bool bq256xx_state_changed(struct bq256xx_device *bq,
@@ -1190,6 +1229,50 @@ static bool bq256xx_state_changed(struct bq256xx_device *bq,
 		old_state.bat_fault != new_state->bat_fault ||
 		old_state.chrg_fault != new_state->chrg_fault ||
 		old_state.ntc_fault != new_state->ntc_fault);
+}
+
+static void bq256xx_overwrite_iindpm_for_typec(struct bq256xx_device *bq)
+{
+	union power_supply_propval val;
+	int ret;
+
+	ret = bq->chip_info->bq256xx_get_iindpm(bq);
+	dev_err(bq->dev, "%s iindpm : %d\n", __func__, ret);
+	if (ret != 500000)
+		return;
+	ret = power_supply_get_property(bq->usb_psy,
+			POWER_SUPPLY_PROP_PRESENT, &val);
+	if (ret) {
+		dev_err(bq->dev, "Unable to read USB PRESENT: %d, May charge in 500mA\n", ret);
+		return;
+	}
+
+	dev_err(bq->dev, "%s present=%d\n", __func__, val.intval);
+	if (val.intval) {
+		ret = power_supply_get_property(bq->usb_psy,
+			POWER_SUPPLY_PROP_TYPEC_MODE, &val);
+		if (ret) {
+			dev_err(bq->dev, "Unable to read USB TYPEC_MODE: %d, May charge in 500mA\n", ret);
+			return;
+		}
+		dev_err(bq->dev, "%s typec_mode:%d\n", __func__, val.intval);
+		switch (val.intval) {
+		case POWER_SUPPLY_TYPEC_SOURCE_MEDIUM:
+			ret = bq->chip_info->bq256xx_set_iindpm(bq, 1500000);
+			if (ret)
+				dev_err(bq->dev, "Unable to set iindpm: %d, May charge in 500mA\n", ret);
+			break;
+		case POWER_SUPPLY_TYPEC_SOURCE_HIGH:
+			ret = bq->chip_info->bq256xx_set_iindpm(bq, 2000000);
+			if (ret)
+				dev_err(bq->dev, "Unable to set iindpm: %d, May charge in 500mA\n", ret);
+			break;
+		default:
+			break;
+		}
+	}
+
+	return;
 }
 
 static irqreturn_t bq256xx_irq_handler_thread(int irq, void *private)
@@ -1211,6 +1294,7 @@ static irqreturn_t bq256xx_irq_handler_thread(int irq, void *private)
 
 	power_supply_changed(bq->charger);
 
+	bq256xx_overwrite_iindpm_for_typec(bq);
 irq_out:
 	return IRQ_HANDLED;
 }
@@ -1225,6 +1309,7 @@ static enum power_supply_property bq256xx_power_supply_props[] = {
 	POWER_SUPPLY_PROP_INPUT_CURRENT_LIMIT,
 	POWER_SUPPLY_PROP_CHARGE_TYPE,
 	POWER_SUPPLY_PROP_USB_TYPE,
+	POWER_SUPPLY_PROP_CHARGING_ENABLED,
 };
 
 static enum power_supply_property bq256xx_battery_props[] = {
@@ -1251,6 +1336,7 @@ static int bq256xx_property_is_writeable(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_CHARGE_TERM_CURRENT:
 	case POWER_SUPPLY_PROP_STATUS:
 	case POWER_SUPPLY_PROP_INPUT_VOLTAGE_LIMIT:
+	case POWER_SUPPLY_PROP_CHARGING_ENABLED:
 		return true;
 	default:
 		return false;
@@ -1662,17 +1748,32 @@ static int bq256xx_parse_dt(struct bq256xx_device *bq)
 	return 0;
 }
 
+static int usb_psy_get_retry_times = 0;
 static int bq256xx_probe(struct i2c_client *client,
 			 const struct i2c_device_id *id)
 {
 	struct device *dev = &client->dev;
 	struct bq256xx_device *bq;
-	int ret;
+	int ret, irq_gpio, irqn;
+	struct power_supply *usb_psy;
+
+	usb_psy = power_supply_get_by_name("usb");
+	if (!usb_psy) {
+		if (usb_psy_get_retry_times < 2) {
+			usb_psy_get_retry_times++;
+			dev_err(dev, "Could not get USB power_supply, defer probe.\n");
+			return -EPROBE_DEFER;
+		} else {
+			usb_psy_get_retry_times = 0;
+			dev_err(dev, "Could not get USB power_supply, typeC may charge in 500mA\n");
+		}
+	}
 
 	bq = devm_kzalloc(dev, sizeof(*bq), GFP_KERNEL);
 	if (!bq)
 		return -ENOMEM;
 
+	bq->usb_psy = usb_psy;
 	bq->client = client;
 	bq->dev = dev;
 	bq->chip_info = &bq256xx_chip_info_tbl[id->driver_data];
@@ -1712,6 +1813,27 @@ static int bq256xx_probe(struct i2c_client *client,
 		usb_register_notifier(bq->usb3_phy, &bq->usb_nb);
 	}
 
+#ifdef CONFIG_INTERRUPT_AS_GPIO
+	irq_gpio = of_get_named_gpio(client->dev.of_node, "ti,irq-gpio", 0);
+	if (!gpio_is_valid(irq_gpio))
+	{
+		dev_err(bq->dev, "%s: %d gpio get failed\n", __func__, irq_gpio);
+		return -EINVAL;
+	}
+	ret = gpio_request(irq_gpio, "bq256XX irq pin");
+	if (ret) {
+		dev_err(bq->dev, "%s: %d gpio request failed\n", __func__, irq_gpio);
+		return ret;
+	}
+	gpio_direction_input(irq_gpio);
+	irqn = gpio_to_irq(irq_gpio);
+	if (irqn < 0) {
+		dev_err(bq->dev, "%s:%d gpio_to_irq failed\n", __func__, irqn);
+		return irqn;
+	}
+	client->irq = irqn;
+#endif
+
 	if (client->irq) {
 		ret = devm_request_threaded_irq(dev, client->irq, NULL,
 						bq256xx_irq_handler_thread,
@@ -1733,6 +1855,8 @@ static int bq256xx_probe(struct i2c_client *client,
 		dev_err(dev, "Cannot initialize the chip.\n");
 		goto error_out;
 	}
+
+	dev_err(dev, "%s success!\n", __func__);
 
 	return ret;
 
