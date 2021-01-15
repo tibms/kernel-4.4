@@ -35,21 +35,5 @@
 		monitored-battery = <&bat>;
 		input-current-limit-microamp = <3000000>;
 	};
-	
-	bq25980@65 {
-		compatible = "ti,bq25980-standalone";
-		//compatible = "ti,bq25980-master";
-		reg = <0x65>;
-		//interrupt-parent = <&tlmm>;
-		//interrupts = <111 0>;
-		ti,irq-gpio = <&tlmm 111 0>;													
-	};
-/*	bq25980@67 {
-		compatible = "ti,bq25980-slave";
-		reg = <0x67>;
-		//interrupt-parent = <&tlmm>;
-		//interrupts = <7 0>;
-		ti,irq-gpio = <&tlmm 7 0>;													
-	};*/
 };
 
