@@ -15,6 +15,6 @@
 		constant-charge-current-max-microamp = <2040000>;
 		constant-charge-voltage-max-microvolt = <4352000>;
 		precharge-current-microamp = <180000>;
-		termination-current-microamp = <180000>;
+		charge-term-current-microamp = <180000>;
 	};
 };

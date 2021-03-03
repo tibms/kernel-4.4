@@ -30,7 +30,7 @@
 		constant-charge-current-max-microamp = <2000000>;
 		constant-charge-voltage-max-microvolt = <4480000>;
 		precharge-current-microamp = <300000>;
-		termination-current-microamp = <600000>;
+		charge-term-current-microamp = <600000>;
 	};
 	
 	bq25960@65 {
