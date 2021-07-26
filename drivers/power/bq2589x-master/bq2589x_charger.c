@@ -1143,7 +1143,9 @@ static void bq2589x_adapter_in_workfunc(struct work_struct *work)
 	if (bq->cfg.use_absolute_vindpm)
 		bq2589x_adjust_absolute_vindpm(bq);
 
-	schedule_delayed_work(&bq->monitor_work, 0);
+	if (pe.enable) {
+		schedule_delayed_work(&bq->monitor_work, 0);
+	}
 }
 
 static void bq2589x_adapter_out_workfunc(struct work_struct *work)
@@ -1157,7 +1159,9 @@ static void bq2589x_adapter_out_workfunc(struct work_struct *work)
 	else
 		dev_info(bq->dev,"%s:reset vindpm threshold to 4400 successfully\n",__func__);
 
-	cancel_delayed_work_sync(&bq->monitor_work);
+	if (pe.enable) {
+		cancel_delayed_work_sync(&bq->monitor_work);
+	}
 }
 
 static void bq2589x_ico_workfunc(struct work_struct *work)
@@ -1385,12 +1389,12 @@ static irqreturn_t bq2589x_charger_interrupt(int irq, void *data)
 }
 
 
-#define GPIO_IRQ    42
+//#define GPIO_IRQ    42
 static int bq2589x_charger_probe(struct i2c_client *client,
 			   const struct i2c_device_id *id)
 {
 	struct bq2589x *bq;
-	int irqn;
+	//int irqn;
 
 	int ret;
 
@@ -1425,7 +1429,7 @@ static int bq2589x_charger_probe(struct i2c_client *client,
 		dev_err(bq->dev, "device init failure: %d\n", ret);
 		goto err_0;
 	}
-
+#if 0
 	ret = gpio_request(GPIO_IRQ, "bq2589x irq pin");
 	if (ret) {
 		dev_err(bq->dev, "%s: %d gpio request failed\n", __func__, GPIO_IRQ);
@@ -1440,7 +1444,7 @@ static int bq2589x_charger_probe(struct i2c_client *client,
 		goto err_1;
 	}
 	client->irq = irqn;
-
+#endif
 	ret = bq2589x_psy_register(bq);
 	if (ret)
 		goto err_0;
@@ -1476,12 +1480,14 @@ err_irq:
 	cancel_work_sync(&bq->irq_work);
 	cancel_work_sync(&bq->adapter_in_work);
 	cancel_work_sync(&bq->adapter_out_work);
-	cancel_delayed_work_sync(&bq->monitor_work);
 	cancel_delayed_work_sync(&bq->ico_work);
 	cancel_delayed_work_sync(&bq->check_pe_tuneup_work);
-	cancel_delayed_work_sync(&bq->pe_volt_tune_work);
-err_1:
-	gpio_free(GPIO_IRQ);
+	if (pe.enable) {
+		cancel_delayed_work_sync(&bq->pe_volt_tune_work);
+		cancel_delayed_work_sync(&bq->monitor_work);
+	}
+//err_1:
+//	gpio_free(GPIO_IRQ);
 err_0:
 	g_bq = NULL;
 	return ret;
@@ -1499,10 +1505,12 @@ static void bq2589x_charger_shutdown(struct i2c_client *client)
 	cancel_work_sync(&bq->irq_work);
 	cancel_work_sync(&bq->adapter_in_work);
 	cancel_work_sync(&bq->adapter_out_work);
-	cancel_delayed_work_sync(&bq->monitor_work);
 	cancel_delayed_work_sync(&bq->ico_work);
 	cancel_delayed_work_sync(&bq->check_pe_tuneup_work);
-	cancel_delayed_work_sync(&bq->pe_volt_tune_work);
+	if (pe.enable) {
+		cancel_delayed_work_sync(&bq->pe_volt_tune_work);
+		cancel_delayed_work_sync(&bq->monitor_work);
+	}
 
 	free_irq(bq->client->irq, NULL);
 	gpio_free(GPIO_IRQ);
